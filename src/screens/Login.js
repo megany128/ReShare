@@ -43,6 +43,7 @@ export default class Login extends React.Component {
           placeholderTextColor="#003f5c"
           onChangeText={email => this.setState({ email })}
           value={this.state.email}
+          keyboardType={email-address}
           />
         </View>
 

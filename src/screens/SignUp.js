@@ -47,6 +47,7 @@ render() {
           autoCorrect={false}
           onChangeText={email => this.setState({ email })}
           value={this.state.email}
+          keyboardType={email-address}
         />
         </View>
 

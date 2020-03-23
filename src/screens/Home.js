@@ -1,7 +1,9 @@
-import React, {Component} from 'react';
-import {View, Text, StyleSheet, TextInput, SafeAreaView, Platform, Image, FlatList, TouchableHighlight} from "react-native";
+import React, { Component } from 'react';
+import { View, Text, StyleSheet, TextInput, SafeAreaView, Platform, Image, FlatList, TouchableHighlight } from "react-native";
 import { List, ListItem, Divider } from 'react-native-elements';
 import Icon from "react-native-vector-icons/Ionicons";
+import _ from 'lodash';
+import { contains } from "/Users/meganyap/Desktop/ReShare/ReShare/index.js"
 
 import { db } from '../config';
 let offersRef = db.ref('/offers');
@@ -10,7 +12,9 @@ class Home extends Component{
 
   state = {
     offers: [],
-    currentUser: null
+    fullData: [],
+    currentUser: null,
+    query: ""
   };
 
   renderSeparator = () => {
@@ -31,7 +35,9 @@ class Home extends Component{
       offersRef.on('value', snapshot => {
         let data = snapshot.val();
         let offers = Object.values(data);
+        let fullData = Object.values(data);
         this.setState({ offers });
+        this.setState({ fullData })
       });
     }
     return () => mounted = false;
@@ -63,6 +69,15 @@ class Home extends Component{
   }
 
   FlatListItemSeparator = () => <View style={styles.line} />;
+
+  handleSearch = text => {
+    console.log(text)
+    const formattedQuery = text.toLowerCase();
+    const offers = _.filter(this.state.fullData, offer => {
+      return contains(offer, formattedQuery);
+    });
+    this.setState({ query: formattedQuery, offers })
+  } 
 
   render() {
     const { navigate } = this.props.navigation;
@@ -96,6 +111,7 @@ class Home extends Component{
                placeholder="Search offers"
                placeholderTextColor="grey"
                style={{ flex: 1, fontWeight: "700", backgroundColor: "white" }}
+               onChangeText={this.handleSearch}
              />
            </View>
          </View>

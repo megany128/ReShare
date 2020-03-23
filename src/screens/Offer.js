@@ -6,6 +6,12 @@ import { db } from '../config';
 let offersRef = db.ref('/offers');
 
 export default class Offer extends React.Component {
+    getAuthor = (uid) =>{
+      db.ref.child('/offers').orderByChild('uid').equalTo(uid).once('value', function(snap) {
+        callback( snap.val() );
+    });
+    }
+
     render() {
         const { navigation } = this.props;  
         const name = navigation.getParam('name', 'no name');
@@ -20,7 +26,7 @@ export default class Offer extends React.Component {
         return(
         <View style = {styles.container}>
             <Text> Name: {name}</Text>
-            <Text> Author: {author}</Text>
+            <Text> Author: {this.getAuthor(author)} </Text>
             <Text> Description: {description}</Text>
             <Text> Category: {category}</Text>
             <Text> Expiry: {expiry}</Text>
