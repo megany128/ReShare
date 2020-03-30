@@ -116,19 +116,24 @@ class Home extends Component{
            </View>
          </View>
         </View>
-        <FlatList
-            style = {styles.listStyle}
-            data = {this.state.offers}
-            renderItem = {({item} ) => (
-              <TouchableHighlight style = {styles.listItemStyle} onPress={() => {this.pressRow(item)}}>
-              <Text>
-                {item.name}
-              </Text>
-              </TouchableHighlight>
-            ) }
-            keyExtractor={(item, index) => index.toString()}
-            ItemSeparatorComponent={this.renderSeparator}
-          />
+        {this.state.offers.length > 0 ? (
+          <FlatList
+          style = {styles.listStyle}
+          data = {this.state.offers}
+          renderItem = {({item} ) => (
+            <TouchableHighlight style = {styles.listItemStyle} onPress={() => {this.pressRow(item)}}>
+            <Text>
+              {item.name}
+            </Text>
+            </TouchableHighlight>
+          ) }
+          keyExtractor={(item, index) => index.toString()}
+          ItemSeparatorComponent={this.renderSeparator}
+        />
+        ) : (
+          <Text style = {{marginVertical: 20, marginHorizontal: 10}}>No offers</Text>
+        )}
+        
       </SafeAreaView>
     ); 
   }
