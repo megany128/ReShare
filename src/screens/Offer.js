@@ -2,14 +2,27 @@ import React, {Component} from 'react';
 import {View, Text, StyleSheet, TextInput, SafeAreaView, Platform, Image, FlatList, TouchableHighlight} from "react-native";
 
 import firebase from 'firebase'
+require('firebase/firestore')
+require("firebase/functions");
+
 import { db } from '../config';
 let offersRef = db.ref('/offers');
+//import { getUser } from "/Users/meganyap/Desktop/ReShare/functions/index.js"
+
 
 export default class Offer extends React.Component {
-    getAuthor = (uid) =>{
-      db.ref.child('/offers').orderByChild('uid').equalTo(uid).once('value', function(snap) {
-        callback( snap.val() );
-    });
+    getAuthor = (uid) => {
+      var getUser = firebase.functions().httpsCallable('getUser');
+      getUser({uid: uid}).then(function(result) {
+        //console.log(result.uid)
+        var user = result.data.uid;
+        console.log (user.email);
+      }).catch(function(error) {
+        var code = error.code;
+        var message = error.message;
+        var details = error.details;
+      });
+      
     }
 
     render() {

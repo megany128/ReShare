@@ -8,4 +8,5 @@ let config = {
   messagingSenderId: '39458655800'
 };
 let app = Firebase.initializeApp(config);
+var functions = Firebase.functions();
 export const db = app.database();
