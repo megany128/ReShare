@@ -1,4 +1,4 @@
-import Firebase from 'firebase';
+import firebase from 'firebase';
 let config = {
   apiKey: 'AIzaSyBRwGJj49W0_v4mZhDxErkUQDoVeWngGH4',
   authDomain: 'reshare-7a0b0.firebaseapp.com',
@@ -7,6 +7,6 @@ let config = {
   storageBucket: 'reshare-7a0b0.appspot.com',
   messagingSenderId: '39458655800'
 };
-let app = Firebase.initializeApp(config);
-var functions = Firebase.functions();
+let app = firebase.initializeApp(config);
+//var functions = firebase.functions(); // This is the error but it is required?
 export const db = app.database();

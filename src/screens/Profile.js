@@ -25,7 +25,11 @@ export default class Profile extends React.Component {
         <Text>Email address: {currentUser && currentUser.email}</Text>
         <Button
          title="Sign out"
-         onPress={() => firebase.auth().signOut()} 
+         onPress={() => 
+          {
+          firebase.auth().signOut();
+          this.props.navigation.navigate('Loading');
+        }}
          />
       </View>
     );

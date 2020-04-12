@@ -7,23 +7,26 @@ require("firebase/functions");
 
 import { db } from '../config';
 let offersRef = db.ref('/offers');
-//import { getUser } from "/Users/meganyap/Desktop/ReShare/functions/index.js"
 
-
-export default class Offer extends React.Component {
-    getAuthor = (uid) => {
+export default class Offer extends React.Component {  
+    getAuthor(uid){
       var getUser = firebase.functions().httpsCallable('getUser');
+      console.log('success');
       getUser({uid: uid}).then(function(result) {
-        //console.log(result.uid)
+        console.log('getUser called')
         var user = result.data.uid;
-        console.log (user.email);
-      }).catch(function(error) {
+        return(
+          result
+          )
+        
+      })
+      .catch(function(error) {
         var code = error.code;
         var message = error.message;
         var details = error.details;
       });
-      
     }
+    
 
     render() {
         const { navigation } = this.props;  

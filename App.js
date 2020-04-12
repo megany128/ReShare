@@ -15,6 +15,7 @@ import Loading from './src/screens/Loading';
 import SignUp from './src/screens/SignUp';
 import Login from './src/screens/Login';
 import Offer from './src/screens/Offer';  
+import SearchResults from './src/screens/SearchResults'
 
 
 import React, {Component} from 'react';
@@ -85,7 +86,7 @@ const MainTabs = createBottomTabNavigator(
 );
 
 const switchNavigator = createSwitchNavigator(
-  { Loading, SignUp, Login, MainTabs, Offer},
+  { Loading, SignUp, Login, MainTabs, Offer, SearchResults},
   { initialRouteName: "Loading" }
   );
 

@@ -15,7 +15,7 @@ export default class Login extends React.Component {
   }
 
   forgotPassword = () => {
-    const { email} = this.state
+    const {email} = this.state
     firebase.auth().sendPasswordResetEmail(email)
       .then(function (user) {
         alert('Please check your email...')
@@ -43,7 +43,7 @@ export default class Login extends React.Component {
           placeholderTextColor="#003f5c"
           onChangeText={email => this.setState({ email })}
           value={this.state.email}
-          keyboardType={email-address}
+          keyboardType={'email-address'}
           />
         </View>
 

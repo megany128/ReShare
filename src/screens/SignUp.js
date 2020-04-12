@@ -5,7 +5,8 @@ import firebase from 'firebase'
 export default class SignUp extends React.Component {
   state = { email: '', password: '', name: '', errorMessage: null }
 handleSignUp = () => {
-  firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password)
+  const { email, password } = this.state
+  firebase.auth().createUserWithEmailAndPassword(email, password)
       .then(
         (user)=>
         {
@@ -20,7 +21,6 @@ handleSignUp = () => {
 }
 render() {
     return (
-      
       <View style={styles.container}>
         <Text style={styles.logo}>ReShare</Text>
         {this.state.errorMessage &&
@@ -38,7 +38,7 @@ render() {
           value={this.state.name}
         />
         </View>
-
+        
         <View style={styles.inputView}>
         <TextInput
           style={styles.inputText}
@@ -47,9 +47,10 @@ render() {
           autoCorrect={false}
           onChangeText={email => this.setState({ email })}
           value={this.state.email}
-          keyboardType={email-address}
+          keyboardType={'email-address'}
         />
         </View>
+        
 
         <View style={styles.inputView}>
         <TextInput
