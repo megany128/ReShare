@@ -78,7 +78,7 @@ class Home extends Component{
   } 
 
   render() {
-    const { navigate } = this.props.navigation;
+    const { navigation } = this.props; 
     const { currentUser } = this.state
     return (
       <SafeAreaView style={{ flex: 1 }}>

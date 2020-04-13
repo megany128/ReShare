@@ -4,7 +4,7 @@ import { List, ListItem, Divider } from 'react-native-elements';
 import Icon from "react-native-vector-icons/Ionicons";
 import _ from 'lodash';
 import { contains } from "/Users/meganyap/Desktop/ReShare/ReShare/index.js"
-import {Dimensions} from 'react-native';
+import { Dimensions } from 'react-native';
 
 import { db } from '../config';
 let offersRef = db.ref('/offers');
@@ -39,12 +39,7 @@ class SearchResults extends Component{
         let fullData = Object.values(data);
         this.setState({ offers });
         this.setState({ fullData })
-
-        const { navigation } = this.props;
-        const query = navigation.getParam('query', 'no query');
-        this.handleSearch(query)
-      });
-    }
+      });    }
     return () => mounted = false;
   }
 
@@ -84,7 +79,19 @@ class SearchResults extends Component{
     this.setState({ query: formattedQuery, offers })
   } 
 
+  selectCategory() {
+    this.props.navigation.navigate('CategorySelector')
+  }
+
+  selectLocation() {
+    this.props.navigation.navigate('LocationSelector')
+  }
+
   render() {
+    const { navigation } = this.props; 
+    const query = navigation.getParam('query', 'no query');
+    const category = navigation.getParam('category', null);
+    const location = navigation.getParam('location', null);
     const { currentUser } = this.state
     return (
       <SafeAreaView style={{ flex: 1 }}>
@@ -132,16 +139,34 @@ class SearchResults extends Component{
          </View> 
 
          <View style = {{ borderBottomWidth: 1 , borderBottomColor: "#dddddd", flexDirection: 'row' }}>
-             <TouchableOpacity style = {[styles.filterBtn, {borderColor: '#84DAC1', width: 120}]}>
-                 <Text style = {{color: "#84DAC1"}}>
-                    CATEGORY
-                 </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style = {[styles.filterBtn, {borderColor: '#8FD5F5', width: 120}]}>
-                 <Text style = {{color: "#8FD5F5"}}>
-                    LOCATION
-                 </Text>
-            </TouchableOpacity>
+            {{category}.category ? (
+                <TouchableOpacity onPress={() => this.selectCategory()} style = {[styles.filterBtn, {backgroundColor: '#84DAC1', borderColor: '#84DAC1', width: 120}]}>
+                    <Text style = {{color: "white", textTransform: 'uppercase'}}>
+                        {category}
+                    </Text>
+                 </TouchableOpacity>  
+                 ) : (
+                <TouchableOpacity onPress={() => this.selectCategory()} style = {[styles.filterBtn, {borderColor: '#84DAC1', width: 120}]}>
+                    <Text style = {{color: '#84DAC1'}}>
+                        CATEGORY
+                    </Text>
+                </TouchableOpacity>
+            )}
+
+            {{location}.location ? (
+                <TouchableOpacity onPress={() => this.selectLocation()} style = {[styles.filterBtn, {backgroundColor: '#8FD5F5', borderColor: '#8FD5F5', width: 120}]}>
+                    <Text style = {{color: "white", textTransform: 'uppercase'}}>
+                        {location}
+                    </Text>
+                 </TouchableOpacity>  
+                 ) : (
+                <TouchableOpacity onPress={() => this.selectLocation()} style = {[styles.filterBtn, {borderColor: '#8FD5F5', width: 120}]}>
+                    <Text style = {{color: '#8FD5F5'}}>
+                        LOCATION
+                    </Text>
+                </TouchableOpacity>
+            )}
+            
             <TouchableOpacity style = {[styles.filterBtn, {borderColor: '#F288AF', width: 100}]}>
                  <Text style = {{color: "#F288AF"}}>
                     SORT
