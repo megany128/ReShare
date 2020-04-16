@@ -27,7 +27,8 @@ class LocationSelector extends Component{
         {key: 'Sabah'},
         {key: 'Sarawak'},
         {key: 'Terengganu'},
-    ]
+    ],
+    currentLocation: ""
   };
 
   renderSeparator = () => {
@@ -46,6 +47,17 @@ class LocationSelector extends Component{
     let mounted = true;
     if(mounted){
         console.log('LocationSelector')
+        try {
+          AsyncStorage.getItem('locationFilterState').then(data => {
+            if(data) {
+              const currentLocation = JSON.parse(data);
+              this.setState({ currentLocation })  
+            }          
+          });
+        }
+        catch(err){
+          console.log('Failed to load current location')
+        }
     }
     return () => mounted = false;
   }
@@ -96,9 +108,16 @@ class LocationSelector extends Component{
           scrollEnabled = {false}
           renderItem = {({item} ) => (
             <TouchableHighlight style = {styles.listItemStyle} onPress={this.selectLocation.bind(this, item.key)}>
-            <Text style = {{fontSize: 15}}>
-              {item.key}
-            </Text>
+              {item.key === this.state.currentLocation ? (
+                <Text style = {{fontWeight:"bold", fontSize: 15}}>
+                  {item.key}
+                  </Text>
+              ) : (
+                <Text style = {{fontSize: 15}}>
+                  {item.key}
+                </Text>   
+              )}
+            
             </TouchableHighlight>
           ) }
           keyExtractor={(item, index) => index.toString()}

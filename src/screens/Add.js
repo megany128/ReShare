@@ -39,6 +39,7 @@ class Add extends Component {
   };
   
   render() {
+    // TO DO: In description, prompt users to specify if they are fine with users taking partial amounts or if it has to be all
     return (
       <View style={styles.main}>
         <Text style={styles.title}>Add Offer</Text>

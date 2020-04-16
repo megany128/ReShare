@@ -1,3 +1,6 @@
+if(__DEV__) {
+    import('./ReactotronConfig').then(() => console.log('Reactotron Configured'))
+  }
 import _ from 'lodash';
 
 export const contains = ({name, description}, query) => {

@@ -27,7 +27,8 @@ class CategorySelector extends Component{
         {key: 'Sports'},
         {key: 'Stationery'},
         {key: 'Toys & Games'},
-    ]
+    ],
+    currentCategory: ""
   };
 
   renderSeparator = () => {
@@ -46,6 +47,17 @@ class CategorySelector extends Component{
     let mounted = true;
     if(mounted){
         console.log('CategorySelector')
+        try {
+          AsyncStorage.getItem('categoryFilterState').then(data => {
+            if(data) {
+              const currentCategory = JSON.parse(data);
+              this.setState({ currentCategory })  
+            }          
+          });
+        }
+        catch(err){
+          console.log('Failed to load current category')
+        }
     }
     return () => mounted = false;
   }
@@ -96,9 +108,15 @@ class CategorySelector extends Component{
           scrollEnabled = {false}
           renderItem = {({item} ) => (
             <TouchableHighlight style = {styles.listItemStyle} onPress={this.selectCategory.bind(this, item.key)}>
-            <Text style = {{fontSize: 15}}>
-              {item.key}
-            </Text>
+            {item.key === this.state.currentCategory ? (
+                <Text style = {{fontWeight:"bold", fontSize: 15}}>
+                  {item.key}
+                  </Text>
+              ) : (
+                <Text style = {{fontSize: 15}}>
+                  {item.key}
+                </Text>   
+              )}
             </TouchableHighlight>
           ) }
           keyExtractor={(item, index) => index.toString()}
