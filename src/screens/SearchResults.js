@@ -3,8 +3,9 @@ import { View, Text, StyleSheet, TextInput, SafeAreaView, Platform, Image, FlatL
 import { List, ListItem, Divider } from 'react-native-elements';
 import Icon from "react-native-vector-icons/Ionicons";
 import _ from 'lodash';
-import { contains } from "/Users/meganyap/Desktop/ReShare/ReShare/index.js"
+import { contains, categoryFilter, locationFilter } from "/Users/meganyap/Desktop/ReShare/ReShare/index.js"
 import { Dimensions } from 'react-native';
+import { AsyncStorage } from "react-native"
 
 import { db } from '../config';
 let offersRef = db.ref('/offers');
@@ -15,7 +16,9 @@ class SearchResults extends Component{
     offers: [],
     fullData: [],
     currentUser: null,
-    query: ""
+    query: "",
+    category: "",
+    location: ""
   };
 
   renderSeparator = () => {
@@ -32,13 +35,37 @@ class SearchResults extends Component{
 
   componentDidMount() {
     let mounted = true;
-    if(mounted){
+    if (mounted) {
       offersRef.on('value', snapshot => {
         let data = snapshot.val();
         let offers = Object.values(data);
         let fullData = Object.values(data);
         this.setState({ offers });
         this.setState({ fullData })
+
+        try {
+          AsyncStorage.getItem('categoryFilterState').then(data => {
+            if(data) {
+              const category = JSON.parse(data);
+              this.setState({ category })
+            } 
+          });
+        }
+        catch(err){
+          console.log('Failed to load button state')
+        }
+
+        try {
+          AsyncStorage.getItem('locationFilterState').then(data => {
+            if(data) {
+              const location = JSON.parse(data);
+              this.setState({ location })  
+            }          
+          });
+        }
+        catch(err){
+          console.log('Failed to load button state')
+        }
       });    }
     return () => mounted = false;
   }
@@ -73,10 +100,34 @@ class SearchResults extends Component{
   handleSearch = text => {
     console.log(text)
     const formattedQuery = text.toLowerCase();
-    const offers = _.filter(this.state.fullData, offer => {
-      return contains(offer, formattedQuery);
-    });
-    this.setState({ query: formattedQuery, offers })
+    if (this.state.category != "" && this.state.location != "")
+    {
+      const offers = _.filter(this.state.fullData, offer => {
+        return contains(offer, formattedQuery) && categoryFilter(offer, this.state.category) && locationFilter(offer,this.state.location)
+      });
+      this.setState({ query: formattedQuery, offers })
+    }
+    else if (this.state.category != "")
+    {
+      const offers = _.filter(this.state.fullData, offer => {
+        return contains(offer, formattedQuery) && categoryFilter(offer, this.state.category)
+      });
+      this.setState({ query: formattedQuery, offers })
+    }
+    else if (this.state.location != "")
+    {
+      const offers = _.filter(this.state.fullData, offer => {
+        return contains(offer, formattedQuery) && locationFilter(offer, this.state.location)
+      });
+      this.setState({ query: formattedQuery, offers })
+    }
+    else 
+    {
+      const offers = _.filter(this.state.fullData, offer => {
+        return contains(offer, formattedQuery)
+      });
+      this.setState({ query: formattedQuery, offers })
+    }
   } 
 
   selectCategory() {
@@ -90,8 +141,6 @@ class SearchResults extends Component{
   render() {
     const { navigation } = this.props; 
     const query = navigation.getParam('query', 'no query');
-    const category = navigation.getParam('category', null);
-    const location = navigation.getParam('location', null);
     const { currentUser } = this.state
     return (
       <SafeAreaView style={{ flex: 1 }}>
@@ -139,10 +188,10 @@ class SearchResults extends Component{
          </View> 
 
          <View style = {{ borderBottomWidth: 1 , borderBottomColor: "#dddddd", flexDirection: 'row' }}>
-            {{category}.category ? (
+            {this.state.category != "" ? (
                 <TouchableOpacity onPress={() => this.selectCategory()} style = {[styles.filterBtn, {backgroundColor: '#84DAC1', borderColor: '#84DAC1', width: 120}]}>
                     <Text style = {{color: "white", textTransform: 'uppercase'}}>
-                        {category}
+                        {this.state.category}
                     </Text>
                  </TouchableOpacity>  
                  ) : (
@@ -153,10 +202,10 @@ class SearchResults extends Component{
                 </TouchableOpacity>
             )}
 
-            {{location}.location ? (
+            {this.state.location != "" ? (
                 <TouchableOpacity onPress={() => this.selectLocation()} style = {[styles.filterBtn, {backgroundColor: '#8FD5F5', borderColor: '#8FD5F5', width: 120}]}>
                     <Text style = {{color: "white", textTransform: 'uppercase'}}>
-                        {location}
+                        {this.state.location}
                     </Text>
                  </TouchableOpacity>  
                  ) : (

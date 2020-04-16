@@ -5,6 +5,8 @@ import Icon from "react-native-vector-icons/Ionicons";
 import _ from 'lodash';
 import { contains } from "/Users/meganyap/Desktop/ReShare/ReShare/index.js"
 import {Dimensions} from 'react-native';
+import { AsyncStorage } from "react-native"
+
 
 import { db } from '../config';
 let offersRef = db.ref('/offers');
@@ -53,12 +55,13 @@ class CategorySelector extends Component{
 
   selectCategory(item) {
     console.log(item)
-    this.props.navigation.navigate('SearchResults',{
-        category: item
-      })
+    AsyncStorage.setItem('categoryFilterState',
+    JSON.stringify(item));
+    this.props.navigation.navigate('SearchResults')
   }
 
   render() {
+    // TO DO: Add CLEAR FILTER button
     const { currentUser } = this.state
     return (
       <SafeAreaView style={{ flex: 1 }}>
@@ -77,7 +80,7 @@ class CategorySelector extends Component{
             color='grey'
             size={40}
             style={{ marginHorizontal: 20, marginVertical: 10 }}
-            onPress={() => this.props.navigation.navigate('SearchResults',{category: null})}
+            onPress={() => this.props.navigation.navigate('SearchResults')}
             hitSlop={{top: 20, bottom: 20, left: 50, right: 50}}
             />
             <Text style={{marginHorizontal: 5, marginVertical: 15, fontWeight: 'bold', fontSize: 25}}>Category Selector</Text>

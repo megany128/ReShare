@@ -4,6 +4,7 @@ import { List, ListItem, Divider } from 'react-native-elements';
 import Icon from "react-native-vector-icons/Ionicons";
 import _ from 'lodash';
 import { contains } from "/Users/meganyap/Desktop/ReShare/ReShare/index.js"
+import { AsyncStorage } from "react-native"
 
 import { db } from '../config';
 let offersRef = db.ref('/offers');
@@ -72,6 +73,10 @@ class Home extends Component{
 
   handleSearch = text => {
     console.log('Search query: ' + text)
+    AsyncStorage.setItem('categoryFilterState',
+    JSON.stringify(""));
+    AsyncStorage.setItem('locationFilterState',
+    JSON.stringify(""));
     this.props.navigation.navigate('SearchResults',{
       query: text
     })
