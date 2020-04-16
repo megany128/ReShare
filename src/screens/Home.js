@@ -73,13 +73,13 @@ class Home extends Component{
 
   handleSearch = text => {
     console.log('Search query: ' + text)
+    AsyncStorage.setItem('searchQuery', JSON.stringify(text))
+    this.props.navigation.navigate('SearchResults')
+
     AsyncStorage.setItem('categoryFilterState',
     JSON.stringify(""));
     AsyncStorage.setItem('locationFilterState',
     JSON.stringify(""));
-    this.props.navigation.navigate('SearchResults',{
-      query: text
-    })
   } 
 
   render() {

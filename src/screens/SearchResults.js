@@ -52,7 +52,7 @@ class SearchResults extends Component{
           });
         }
         catch(err){
-          console.log('Failed to load button state')
+          console.log('Failed to load category filter')
         }
 
         try {
@@ -64,9 +64,23 @@ class SearchResults extends Component{
           });
         }
         catch(err){
-          console.log('Failed to load button state')
+          console.log('Failed to load location filter')
         }
-      });    }
+
+        try {
+          AsyncStorage.getItem('searchQuery').then(data => {
+            if(data) {
+              const query = JSON.parse(data);
+              this.setState({ query })  
+              this.handleSearch(this.state.query)
+            }          
+          });
+        }
+        catch(err){
+          console.log('Failed to load search query')
+        }
+      });
+    }
     return () => mounted = false;
   }
 
@@ -99,40 +113,42 @@ class SearchResults extends Component{
 
   handleSearch = text => {
     console.log(text)
+    AsyncStorage.setItem('searchQuery', JSON.stringify(text))
+
     const formattedQuery = text.toLowerCase();
     if (this.state.category != "" && this.state.location != "")
     {
       const offers = _.filter(this.state.fullData, offer => {
         return contains(offer, formattedQuery) && categoryFilter(offer, this.state.category) && locationFilter(offer,this.state.location)
       });
-      this.setState({ query: formattedQuery, offers })
+      this.setState({ offers })
     }
     else if (this.state.category != "")
     {
       const offers = _.filter(this.state.fullData, offer => {
         return contains(offer, formattedQuery) && categoryFilter(offer, this.state.category)
       });
-      this.setState({ query: formattedQuery, offers })
+      this.setState({ offers })
     }
     else if (this.state.location != "")
     {
       const offers = _.filter(this.state.fullData, offer => {
         return contains(offer, formattedQuery) && locationFilter(offer, this.state.location)
       });
-      this.setState({ query: formattedQuery, offers })
+      this.setState({ offers })
     }
     else 
     {
       const offers = _.filter(this.state.fullData, offer => {
         return contains(offer, formattedQuery)
       });
-      this.setState({ query: formattedQuery, offers })
+      this.setState({ offers })
     }
   } 
 
   selectCategory() {
     this.props.navigation.navigate('CategorySelector')
-  }
+    }
 
   selectLocation() {
     this.props.navigation.navigate('LocationSelector')
@@ -180,6 +196,7 @@ class SearchResults extends Component{
                underlineColorAndroid="transparent"
                placeholder="Search offers"
                placeholderTextColor="grey"
+               defaultValue={this.state.query}
                style={{ flex: 0, fontWeight: "700", backgroundColor: "white", width: Dimensions.get('window').width - 120}}
                onSubmitEditing={text => this.handleSearch(text.nativeEvent.text)}
                clearButtonMode={ 'while-editing'}
