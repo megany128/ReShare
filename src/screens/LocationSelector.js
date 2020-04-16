@@ -60,8 +60,13 @@ class LocationSelector extends Component{
     this.props.navigation.navigate("SearchResults")
   }
 
+  clearFilter() {
+    AsyncStorage.setItem('locationFilterState',
+    JSON.stringify(""));
+    this.props.navigation.navigate("SearchResults")
+  }
+
   render() {
-    // TO DO: Add CLEAR FILTER button
     const { currentUser } = this.state
     return (
       <SafeAreaView style={{ flex: 1 }}>
@@ -88,6 +93,7 @@ class LocationSelector extends Component{
          <FlatList
           style = {styles.listStyle}
           data = {this.state.locations}
+          scrollEnabled = {false}
           renderItem = {({item} ) => (
             <TouchableHighlight style = {styles.listItemStyle} onPress={this.selectLocation.bind(this, item.key)}>
             <Text style = {{fontSize: 15}}>
@@ -99,6 +105,11 @@ class LocationSelector extends Component{
           ItemSeparatorComponent={this.renderSeparator}
           />
         </View>
+        <TouchableOpacity onPress={() => this.clearFilter()} style = {[styles.clearBtn]}>
+                 <Text style = {{color: "white"}}>
+                    CLEAR FILTER
+                 </Text>
+            </TouchableOpacity>
       </SafeAreaView>
     ); 
   }
@@ -120,7 +131,7 @@ const styles = StyleSheet.create({
   {
     marginVertical: 10
   },
-  filterBtn:
+  clearBtn:
   {
     borderRadius:25,
     height: 40,
@@ -128,8 +139,10 @@ const styles = StyleSheet.create({
     justifyContent:"center",
     marginTop:0,
     marginBottom:15,
-    marginLeft: 15,
-    borderWidth: 1
+    marginTop: 30,
+    marginLeft: 135,
+    width: 150,
+    backgroundColor: "#d3d3d3"
   },
   listStyle:
   {
