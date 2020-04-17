@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TextInput, SafeAreaView, Platform, Image, FlatL
 import { List, ListItem, Divider } from 'react-native-elements';
 import Icon from "react-native-vector-icons/Ionicons";
 import _ from 'lodash';
-import { contains, categoryFilter, locationFilter, sortByDate } from "/Users/meganyap/Desktop/ReShare/ReShare/index.js"
+import { contains, categoryFilter, locationFilter } from "/Users/meganyap/Desktop/ReShare/ReShare/index.js"
 import { Dimensions } from 'react-native';
 import { AsyncStorage } from "react-native"
 import moment from "moment";
@@ -90,11 +90,8 @@ class SearchResults extends Component{
               if(this.state.currentSort === "Recent")
               {
                 console.log('sorting by date')
-                console.log(Array.isArray(this.state.offers))
-                let sortedOffers = offers.sort((a, b) => Date.parse(new Date(a.date.split("/").reverse().join("-"))) - Date.parse(new Date(b.date.split("/").reverse().join("-"))))
-                this.setState((offers) => {
-                  return {offers: sortedOffers}
-                });
+                const offers = this.state.offers.sort((a, b) => Date.parse(new Date(a.date.split("/").reverse().join("-"))) - Date.parse(new Date(b.date.split("/").reverse().join("-"))))
+                this.setState({ offers })
               }
             }          
           });
@@ -137,34 +134,73 @@ class SearchResults extends Component{
     console.log(text)
     AsyncStorage.setItem('searchQuery', JSON.stringify(text))
 
+    const offers = this.state.fullData
+    console.log('refreshed offers')
+
+    this.setState({ offers })
     const formattedQuery = text.toLowerCase();
     if (this.state.category != "" && this.state.location != "")
     {
-      const offers = _.filter(this.state.fullData, offer => {
+      const searchedOffers = _.filter(this.state.fullData, offer => {
         return contains(offer, formattedQuery) && categoryFilter(offer, this.state.category) && locationFilter(offer,this.state.location)
       });
-      this.setState({ offers })
+      this.setState({ offers: searchedOffers })
+      console.log(this.state.offers)
+      if (this.state.currentSort === "Recent")
+        {
+          console.log('sorting by date')
+          const offers = searchedOffers.sort((a, b) => Date.parse(new Date(a.date.split("/").reverse().join("-"))) - Date.parse(new Date(b.date.split("/").reverse().join("-"))))
+          console.log(offers)
+          this.setState({ offers })
+        }
     }
     else if (this.state.category != "")
     {
-      const offers = _.filter(this.state.fullData, offer => {
+      const searchedOffers = _.filter(this.state.fullData, offer => {
         return contains(offer, formattedQuery) && categoryFilter(offer, this.state.category)
       });
-      this.setState({ offers })
+      this.setState({ offers: searchedOffers })
+      console.log(this.state.offers)
+
+      if (this.state.currentSort === "Recent")
+        {
+          console.log('sorting by date')
+          const offers = searchedOffers.sort((a, b) => Date.parse(new Date(a.date.split("/").reverse().join("-"))) - Date.parse(new Date(b.date.split("/").reverse().join("-"))))
+          console.log(offers)
+          this.setState({ offers })
+        }
     }
     else if (this.state.location != "")
     {
-      const offers = _.filter(this.state.fullData, offer => {
+      const searchedOffers = _.filter(this.state.fullData, offer => {
         return contains(offer, formattedQuery) && locationFilter(offer, this.state.location)
       });
-      this.setState({ offers })
+      this.setState({ offers: searchedOffers })
+      console.log(this.state.offers)
+
+      if (this.state.currentSort === "Recent")
+        {
+          console.log('sorting by date')
+          const offers = searchedOffers.sort((a, b) => Date.parse(new Date(a.date.split("/").reverse().join("-"))) - Date.parse(new Date(b.date.split("/").reverse().join("-"))))
+          console.log(offers)
+          this.setState({ offers })
+        }
     }
     else 
     {
-      const offers = _.filter(this.state.fullData, offer => {
+      const searchedOffers = _.filter(this.state.fullData, offer => {
         return contains(offer, formattedQuery)
       });
-      this.setState({ offers })
+      this.setState({ offers: searchedOffers })
+      console.log(this.state.offers)
+
+      if (this.state.currentSort === "Recent")
+        {
+          console.log('sorting by date')
+          const offers = searchedOffers.sort((a, b) => Date.parse(new Date(a.date.split("/").reverse().join("-"))) - Date.parse(new Date(b.date.split("/").reverse().join("-"))))
+          console.log(offers)
+          this.setState({ offers })
+        }
     }
   } 
 
