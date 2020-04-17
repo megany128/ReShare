@@ -81,7 +81,7 @@ class Home extends Component{
     AsyncStorage.setItem('locationFilterState',
     JSON.stringify(""));
     AsyncStorage.setItem('sortState',
-    JSON.stringify(""));
+    JSON.stringify("Recent"));
   } 
 
   render() {

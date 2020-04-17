@@ -93,6 +93,12 @@ class SearchResults extends Component{
                 const offers = this.state.offers.sort((a, b) => Date.parse(new Date(a.date.split("/").reverse().join("-"))) - Date.parse(new Date(b.date.split("/").reverse().join("-"))))
                 this.setState({ offers })
               }
+              else if(this.state.currentSort === "Expiry")
+              {
+                console.log('sorting by expiry date')
+                const offers = this.state.offers.sort((a, b) => Date.parse(new Date(a.expiry.split("/").reverse().join("-"))) - Date.parse(new Date(b.expiry.split("/").reverse().join("-"))))
+                this.setState({ offers })
+              }
             }          
           });
         }
@@ -153,6 +159,12 @@ class SearchResults extends Component{
           console.log(offers)
           this.setState({ offers })
         }
+      else if(this.state.currentSort === "Expiry")
+      {
+        console.log('sorting by expiry date')
+        const offers = searchedOffers.sort((a, b) => Date.parse(new Date(a.expiry.split("/").reverse().join("-"))) - Date.parse(new Date(b.expiry.split("/").reverse().join("-"))))
+        this.setState({ offers })
+      }
     }
     else if (this.state.category != "")
     {
@@ -169,6 +181,12 @@ class SearchResults extends Component{
           console.log(offers)
           this.setState({ offers })
         }
+      else if(this.state.currentSort === "Expiry")
+      {
+        console.log('sorting by expiry date')
+        const offers = searchedOffers.sort((a, b) => Date.parse(new Date(a.expiry.split("/").reverse().join("-"))) - Date.parse(new Date(b.expiry.split("/").reverse().join("-"))))
+        this.setState({ offers })
+      }
     }
     else if (this.state.location != "")
     {
@@ -185,6 +203,12 @@ class SearchResults extends Component{
           console.log(offers)
           this.setState({ offers })
         }
+      else if(this.state.currentSort === "Expiry")
+      {
+        console.log('sorting by expiry date')
+        const offers = searchedOffers.sort((a, b) => Date.parse(new Date(a.expiry.split("/").reverse().join("-"))) - Date.parse(new Date(b.expiry.split("/").reverse().join("-"))))
+        this.setState({ offers })
+      }
     }
     else 
     {
@@ -201,6 +225,12 @@ class SearchResults extends Component{
           console.log(offers)
           this.setState({ offers })
         }
+      else if(this.state.currentSort === "Expiry")
+      {
+       console.log('sorting by expiry date')
+        const offers = searchedOffers.sort((a, b) => Date.parse(new Date(a.expiry.split("/").reverse().join("-"))) - Date.parse(new Date(b.expiry.split("/").reverse().join("-"))))
+        this.setState({ offers })
+      }
     }
   } 
 

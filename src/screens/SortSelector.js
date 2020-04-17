@@ -114,11 +114,6 @@ class SortSelector extends Component{
           ItemSeparatorComponent={this.renderSeparator}
           />
         </View>
-        <TouchableOpacity onPress={() => this.clearSort()} style = {[styles.clearBtn]}>
-                 <Text style = {{color: "white"}}>
-                    CLEAR SORT
-                 </Text>
-            </TouchableOpacity>
       </SafeAreaView>
     ); 
   }
