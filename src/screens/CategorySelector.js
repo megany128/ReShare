@@ -4,7 +4,7 @@ import { List, ListItem, Divider } from 'react-native-elements';
 import Icon from "react-native-vector-icons/Ionicons";
 import _ from 'lodash';
 import { contains } from "/Users/meganyap/Desktop/ReShare/ReShare/index.js"
-import {Dimensions} from 'react-native';
+import { Dimensions } from 'react-native';
 import { AsyncStorage } from "react-native"
 
 

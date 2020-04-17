@@ -8,22 +8,24 @@ import {View,
 import RNPickerSelect, { defaultStyles } from 'react-native-picker-select';
 import { db } from '../config';
 import firebase from 'firebase'
+import moment from "moment";
+moment.locale('en-gb'); 
 
 class Add extends Component {
   state = {
     name: '',
     author: firebase.auth().currentUser.uid,
     category: '',
-    time: firebase.database.ServerValue.TIMESTAMP,
+    date: moment(new Date()).format('L'),
     description: '',
     location: '',
     expiry: '',
     tags:''
   };
 
-  addOffer(name, author, category, time, description, location, expiry, tags){
+  addOffer(name, author, category, date, description, location, expiry, tags){
     db.ref('/offers').push({
-      name, author, category, time, description, location, expiry, tags
+      name, author, category, date, description, location, expiry, tags
     });
   };
 
@@ -34,7 +36,7 @@ class Add extends Component {
   };
   
   handleSubmit = () => {
-    this.addOffer(this.state.name, this.state.author, this.state.category, this.state.time, this.state.description, this.state.location, this.state.expiry, this.state.tags);
+    this.addOffer(this.state.name, this.state.author, this.state.category, this.state.date, this.state.description, this.state.location, this.state.expiry, this.state.tags);
     Alert.alert('Offer saved successfully');
   };
   
@@ -49,22 +51,41 @@ class Add extends Component {
             //placeholder = "Select category"
             onValueChange={(category) => this.setState({ category })}
             items={[
-                { label: "Furniture", value: "Furniture" },
-                { label: "Food", value: "Food" },
-                { label: "Stationery", value: "Stationery" },
-                { label: "Electronics", value: "Electronics" },
-                { label: "Toys and Games", value: "Toys and Games" },
-                { label: "Health", value: "Health" },
-                { label: "Books", value: "Books" },
-                { label: "Hobbies", value: "Hobbies" },
                 { label: "Appliances", value: "Appliances" },
-                { label: "Clothing", value: "Clothing" },
                 { label: "Babies and Kids", value: "Babies and Kids" },
+                { label: "Books", value: "Books" },
+                { label: "Clothing", value: "Clothing" },
+                { label: "Electronics", value: "Electronics" },
+                { label: "Food", value: "Food" },
+                { label: "Furniture", value: "Furniture" },
+                { label: "Health", value: "Health" },
+                { label: "Stationery", value: "Stationery" },
+                { label: "Hobbies", value: "Hobbies" },
                 { label: "Sports", value: "Sports" },
+                { label: "Toys and Games", value: "Toys and Games" },  
             ]}
         />
         <TextInput style={styles.itemInput} placeholder = "Description" onChangeText={description => this.setState({ description })} />
-        <TextInput style={styles.itemInput} placeholder = "Location" onChangeText={location => this.setState({ location })} />
+        <RNPickerSelect
+            style={pickerSelectStyles.inputIOS}
+            //placeholder = "Select category"
+            onValueChange={(location) => this.setState({ location })}
+            items={[
+              {label: 'Johor', value: 'Johor'},
+              {label: 'Kedah', value: 'Kedah'},
+              {label: 'Kelantan', value: 'Kelantan'},
+              {label: 'KL/Selangor', value: 'KL/Selangor'},
+              {label: 'Melaka', value: 'Melaka'},
+              {label: 'Negeri Sembilan', value: 'Negeri Sembilan'},
+              {label: 'Pahang', value: 'Pahang'},
+              {label: 'Penang', value: 'Penang'},
+              {label: 'Perak', value: 'Perak'},
+              {label: 'Perlis', value: 'Perlis'},
+              {label: 'Sabah', value: 'Sabah'},
+              {label: 'Sarawak', value: 'Sarawak'},
+              {label: 'Terengganu', value: 'Terengganu'},
+            ]}
+        />
         <TextInput style={styles.itemInput} placeholder = "Offer expiry date" onChangeText={expiry => this.setState({ expiry })} />
         <TextInput style={styles.itemInput} placeholder = "Tags" onChangeText={tags => this.setState({ tags })} />
         <TouchableHighlight

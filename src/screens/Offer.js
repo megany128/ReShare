@@ -37,7 +37,7 @@ export default class Offer extends React.Component {
         const expiry = navigation.getParam('expiry', 'no expiry');
         const location = navigation.getParam('location', 'no location')
         const tags = navigation.getParam('tags', 'no tags');
-        const time = navigation.getParam('time', 'no time')
+        const date = navigation.getParam('date', 'no date')
        
         return(
         <View style = {styles.container}>
@@ -48,7 +48,7 @@ export default class Offer extends React.Component {
             <Text> Expiry: {expiry}</Text>
             <Text> Location: {location}</Text>
             <Text> Tags: {tags}</Text>
-            <Text> Time: {time}</Text>
+            <Text> Date: {date}</Text>
          </View>
         );
     }

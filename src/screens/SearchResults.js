@@ -3,9 +3,10 @@ import { View, Text, StyleSheet, TextInput, SafeAreaView, Platform, Image, FlatL
 import { List, ListItem, Divider } from 'react-native-elements';
 import Icon from "react-native-vector-icons/Ionicons";
 import _ from 'lodash';
-import { contains, categoryFilter, locationFilter } from "/Users/meganyap/Desktop/ReShare/ReShare/index.js"
+import { contains, categoryFilter, locationFilter, sortByDate } from "/Users/meganyap/Desktop/ReShare/ReShare/index.js"
 import { Dimensions } from 'react-native';
 import { AsyncStorage } from "react-native"
+import moment from "moment";
 
 import { db } from '../config';
 let offersRef = db.ref('/offers');
@@ -18,7 +19,8 @@ class SearchResults extends Component{
     currentUser: null,
     query: "",
     category: "",
-    location: ""
+    location: "",
+    currentSort: ""
   };
 
   renderSeparator = () => {
@@ -79,8 +81,28 @@ class SearchResults extends Component{
         catch(err){
           console.log('Failed to load search query')
         }
-      });
-    }
+
+        try {
+          AsyncStorage.getItem('sortState').then(data => {
+            if(data) {
+              const currentSort = JSON.parse(data);
+              this.setState({ currentSort });
+              if(this.state.currentSort === "Recent")
+              {
+                console.log('sorting by date')
+                console.log(Array.isArray(this.state.offers))
+                let sortedOffers = offers.sort((a, b) => Date.parse(new Date(a.date.split("/").reverse().join("-"))) - Date.parse(new Date(b.date.split("/").reverse().join("-"))))
+                this.setState((offers) => {
+                  return {offers: sortedOffers}
+                });
+              }
+            }          
+          });
+        }
+        catch(err){
+          console.log('Failed to load search query')
+        }
+      });    }
     return () => mounted = false;
   }
 
@@ -152,6 +174,10 @@ class SearchResults extends Component{
 
   selectLocation() {
     this.props.navigation.navigate('LocationSelector')
+  }
+
+  selectSort() {
+    this.props.navigation.navigate('SortSelector')
   }
 
   render() {
@@ -233,11 +259,21 @@ class SearchResults extends Component{
                 </TouchableOpacity>
             )}
             
-            <TouchableOpacity style = {[styles.filterBtn, {borderColor: '#F288AF', width: 100}]}>
+            {this.state.currentSort != "" ? (
+              <TouchableOpacity onPress={() => this.selectSort()}style = {[styles.filterBtn, {backgroundColor: '#F288AF', borderColor: '#F288AF', width: 100}]}>
+              <Text style = {{color: "white", textTransform: "uppercase"}}>
+                 SORT: {this.state.currentSort}
+              </Text>
+         </TouchableOpacity>
+            ) : (
+              <TouchableOpacity onPress={() => this.selectSort()}style = {[styles.filterBtn, {borderColor: '#F288AF', width: 100}]}>
                  <Text style = {{color: "#F288AF"}}>
                     SORT
                  </Text>
             </TouchableOpacity>
+            )
+            }
+            
         </View>        
         
         </View>

@@ -30,3 +30,9 @@ export const locationFilter = ({location}, filter) => {
     }
     return false;
 };
+
+export const sortByDate = (arr) => {
+   arr.sort((a, b) => {
+    new Date(...a.date.split('/').reverse()) - new Date(...b.date.split('/').reverse())
+  });
+}

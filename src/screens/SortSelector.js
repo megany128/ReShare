@@ -7,28 +7,19 @@ import { contains } from "/Users/meganyap/Desktop/ReShare/ReShare/index.js"
 import { Dimensions } from 'react-native';
 import { AsyncStorage } from "react-native"
 
+
 import { db } from '../config';
 let offersRef = db.ref('/offers');
 
-class LocationSelector extends Component{
+class SortSelector extends Component{
 
   state = {
-    locations: [
-        {key: 'Johor'},
-        {key: 'Kedah'},
-        {key: 'Kelantan'},
-        {key: 'KL/Selangor'},
-        {key: 'Melaka'},
-        {key: 'Negeri Sembilan'},
-        {key: 'Pahang'},
-        {key: 'Penang'},
-        {key: 'Perak'},
-        {key: 'Perlis'},
-        {key: 'Sabah'},
-        {key: 'Sarawak'},
-        {key: 'Terengganu'},
+    sorts: [
+        {title: 'Recent', key: 'Most recent'},
+        {title: 'Expiry', key: 'Expiry date: near to far'},
+        {title: 'Trusted', key: 'Most trusted users'}
     ],
-    currentLocation: ""
+    currentSort: ""
   };
 
   renderSeparator = () => {
@@ -46,17 +37,17 @@ class LocationSelector extends Component{
   componentDidMount() {
     let mounted = true;
     if(mounted){
-        console.log('LocationSelector')
+        console.log('SortSelector')
         try {
-          AsyncStorage.getItem('locationFilterState').then(data => {
+          AsyncStorage.getItem('sortState').then(data => {
             if(data) {
-              const currentLocation = JSON.parse(data);
-              this.setState({ currentLocation })  
+              const currentSort = JSON.parse(data);
+              this.setState({ currentSort })  
             }          
           });
         }
         catch(err){
-          console.log('Failed to load current location')
+          console.log('Failed to load current sort')
         }
     }
     return () => mounted = false;
@@ -65,15 +56,15 @@ class LocationSelector extends Component{
 
   FlatListItemSeparator = () => <View style={styles.line} />;
 
-  selectLocation(item) {
+  selectSort(item) {
     console.log(item)
-    AsyncStorage.setItem('locationFilterState',
+    AsyncStorage.setItem('sortState',
     JSON.stringify(item));
-    this.props.navigation.navigate("SearchResults")
+    this.props.navigation.navigate('SearchResults')
   }
 
-  clearFilter() {
-    AsyncStorage.setItem('locationFilterState',
+  clearSort() {
+    AsyncStorage.setItem('sortState',
     JSON.stringify(""));
     this.props.navigation.navigate("SearchResults")
   }
@@ -100,15 +91,15 @@ class LocationSelector extends Component{
             onPress={() => this.props.navigation.navigate('SearchResults')}
             hitSlop={{top: 20, bottom: 20, left: 50, right: 50}}
             />
-            <Text style={{marginHorizontal: 5, marginVertical: 15, fontWeight: 'bold', fontSize: 25}}>Location Selector</Text>
+            <Text style={{marginHorizontal: 5, marginVertical: 15, fontWeight: 'bold', fontSize: 25}}>Sort Selector</Text>
          </View>
          <FlatList
           style = {styles.listStyle}
-          data = {this.state.locations}
+          data = {this.state.sorts}
           scrollEnabled = {false}
           renderItem = {({item} ) => (
-            <TouchableHighlight style = {styles.listItemStyle} onPress={this.selectLocation.bind(this, item.key)}>
-              {item.key === this.state.currentLocation ? (
+            <TouchableHighlight style = {styles.listItemStyle} onPress={this.selectSort.bind(this, item.title)}>
+            {item.title === this.state.currentSort ? (
                 <Text style = {{fontWeight:"bold", fontSize: 15}}>
                   {item.key}
                   </Text>
@@ -117,23 +108,22 @@ class LocationSelector extends Component{
                   {item.key}
                 </Text>   
               )}
-            
             </TouchableHighlight>
           ) }
           keyExtractor={(item, index) => index.toString()}
           ItemSeparatorComponent={this.renderSeparator}
           />
         </View>
-        <TouchableOpacity onPress={() => this.clearFilter()} style = {[styles.clearBtn]}>
+        <TouchableOpacity onPress={() => this.clearSort()} style = {[styles.clearBtn]}>
                  <Text style = {{color: "white"}}>
-                    CLEAR FILTER
+                    CLEAR SORT
                  </Text>
             </TouchableOpacity>
       </SafeAreaView>
     ); 
   }
 }
-export default LocationSelector;
+export default SortSelector;
 
 const styles = StyleSheet.create({
   container: {
