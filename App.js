@@ -19,7 +19,7 @@ import SearchResults from './src/screens/SearchResults'
 import CategorySelector from './src/screens/CategorySelector'
 import LocationSelector from './src/screens/LocationSelector'
 import SortSelector from './src/screens/SortSelector'
-
+import Categories from './src/screens/Categories'
 
 import React, {Component} from 'react';
 
@@ -89,7 +89,7 @@ const MainTabs = createBottomTabNavigator(
 );
 
 const switchNavigator = createSwitchNavigator(
-  { Loading, SignUp, Login, MainTabs, Offer, SearchResults, CategorySelector, LocationSelector, SortSelector},
+  { Loading, SignUp, Login, MainTabs, Offer, SearchResults, CategorySelector, LocationSelector, SortSelector, Categories},
   { initialRouteName: "Loading" }
   );
 

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, TextInput, SafeAreaView, Platform, Image, FlatList, TouchableHighlight } from "react-native";
+import { View, Text, StyleSheet, TextInput, SafeAreaView, Platform, Image, FlatList, TouchableHighlight, ScrollView } from "react-native";
 import { List, ListItem, Divider } from 'react-native-elements';
 import Icon from "react-native-vector-icons/Ionicons";
 import _ from 'lodash';
@@ -15,7 +15,21 @@ class Home extends Component{
     offers: [],
     fullData: [],
     currentUser: null,
-    query: ""
+    query: "",
+    categories: [
+      {key: 'Appliances'},
+      {key: 'Babies & Kids'},
+      {key: 'Books'},
+      {key: 'Clothing'},
+      {key: 'Electronics'},
+      {key: 'Food'},
+      {key: 'Furniture'},
+      {key: 'Health'},
+      {key: 'Hobbies'},
+      {key: 'Sports'},
+      {key: 'Stationery'},
+      {key: 'Toys & Games'},
+    ]
   };
 
   renderSeparator = () => {
@@ -39,6 +53,9 @@ class Home extends Component{
         let fullData = Object.values(data);
         this.setState({ offers });
         this.setState({ fullData })
+
+        const sortedOffers = offers.sort((a, b) => Date.parse(new Date(a.date.split("/").reverse().join("-"))) - Date.parse(new Date(b.date.split("/").reverse().join("-"))))
+          this.setState({ offers: sortedOffers })
       });
     }
     return () => mounted = false;
@@ -57,6 +74,18 @@ class Home extends Component{
       tags: item.tags,
       time: item.time
     })
+  }
+  
+  selectCategory(item)
+  {
+    AsyncStorage.setItem('searchQuery', '')
+    AsyncStorage.setItem('categoryFilterState',
+    JSON.stringify(item.key));
+    AsyncStorage.setItem('locationFilterState',
+    JSON.stringify(""));
+    AsyncStorage.setItem('sortState',
+    JSON.stringify("Recent"));
+    this.props.navigation.navigate('SearchResults')
   }
 
   renderItem(item){
@@ -83,6 +112,39 @@ class Home extends Component{
     AsyncStorage.setItem('sortState',
     JSON.stringify("Recent"));
   } 
+
+  renderImage(img) {
+    switch (img) {
+      case 'Appliances':
+          return (<Image style = {{width: 120, height: 100}}source={require('../icons/appliances.png')}/> );
+      case 'Babies & Kids':
+        return (<Image style = {{width: 120, height: 100}}source={require('../icons/babiesandkids.png')}/> );
+      case 'Books':
+        return (<Image style = {{width: 120, height: 100}}source={require('../icons/books.png')}/> );
+      case 'Clothing':
+        return (<Image style = {{width: 120, height: 100}}source={require('../icons/clothing.png')}/> );
+      case 'Electronics':
+        return (<Image style = {{width: 120, height: 100}}source={require('../icons/electronics.png')}/> );
+      case 'Food':
+        return (<Image style = {{width: 120, height: 100}}source={require('../icons/food.png')}/> );
+      case 'Furniture':
+        return (<Image style = {{width: 120, height: 100}}source={require('../icons/furniture.png')}/> );
+      case 'Health':
+        return (<Image style = {{width: 120, height: 100}}source={require('../icons/health.png')}/> );
+      case 'Hobbies':
+        return (<Image style = {{width: 120, height: 100}}source={require('../icons/hobbies.png')}/> );
+      case 'Sports':
+        return (<Image style = {{width: 120, height: 100}}source={require('../icons/sports.png')}/> );
+      case 'Stationery':
+        return (<Image style = {{width: 120, height: 100}}source={require('../icons/stationery.png')}/> );
+      case 'Toys & Games':
+        return (<Image style = {{width: 120, height: 100}}source={require('../icons/toysandgames.png')}/> );
+      default:
+          return (
+              <Text>{'Null'}</Text>
+          );
+    }
+  }
 
   render() {
     const { navigation } = this.props; 
@@ -122,6 +184,37 @@ class Home extends Component{
            </View>
          </View>
         </View>
+        <View style={{flexDirection: 'row'}}>
+          <Text style={{marginHorizontal: 10, marginTop: 15, fontWeight: 'bold', fontSize: 25}}>Categories</Text>
+          <Text style={{marginHorizontal: 10, marginTop: 30, fontSize: 12, textAlign:'right', width: 230, color: 'grey'}} onPress={() => {this.props.navigation.navigate('Categories')}}>See all ></Text>
+        </View>
+        <View>
+          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+            <FlatList
+              scrollEnabled = {false}
+              style = {styles.listStyle}
+              data = {this.state.categories}
+              contentContainerStyle={{alignSelf: 'flex-start'}}
+              numColumns={this.state.categories.length / 2}
+              showsVerticalScrollIndicator={false}
+              showsHorizontalScrollIndicator={false}
+              renderItem = {({item} ) => (
+                <View>
+                  <TouchableHighlight style = {styles.categoryIconStyle} onPress={() => {this.selectCategory(item)}}>
+                  {this.renderImage(item.key)}
+                  </TouchableHighlight>
+
+                  <TouchableHighlight style = {styles.categoryItemStyle} onPress={() => {this.selectCategory(item)}}>
+                  <Text style={{width: 120, textAlign:'center'}}>
+                    {item.key}
+                  </Text>
+                  </TouchableHighlight>
+              </View>
+              )}
+            ></FlatList>
+          </ScrollView>
+        </View>
+        <Text style={{marginHorizontal: 10, marginTop: 15, fontWeight: 'bold', fontSize: 25}}>Recent Offers</Text>
         {this.state.offers.length > 0 ? (
           <FlatList
           style = {styles.listStyle}
@@ -160,5 +253,13 @@ const styles = StyleSheet.create({
   listItemStyle:
   {
     marginVertical: 10
+  },
+  categoryItemStyle:
+  {
+    marginVertical: 10,
+    marginRight: 5
+  },
+  categoryIconStyle:
+  {
   }
 });

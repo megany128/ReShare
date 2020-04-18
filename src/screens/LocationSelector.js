@@ -100,7 +100,7 @@ class LocationSelector extends Component{
             onPress={() => this.props.navigation.navigate('SearchResults')}
             hitSlop={{top: 20, bottom: 20, left: 50, right: 50}}
             />
-            <Text style={{marginHorizontal: 5, marginVertical: 15, fontWeight: 'bold', fontSize: 25}}>Location Selector</Text>
+          <Text style={{marginHorizontal: 5, marginVertical: 15, fontWeight: 'bold', fontSize: 25}}>Location Selector</Text>
          </View>
          <FlatList
           style = {styles.listStyle}
