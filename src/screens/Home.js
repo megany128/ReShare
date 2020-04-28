@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, TextInput, SafeAreaView, Platform, Image, FlatList, TouchableHighlight, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TextInput, SafeAreaView, Platform, Image, FlatList, TouchableHighlight, ScrollView, Dimensions } from "react-native";
 import { List, ListItem, Divider } from 'react-native-elements';
 import Icon from "react-native-vector-icons/Ionicons";
 import _ from 'lodash';
 import { contains } from "/Users/meganyap/Desktop/ReShare/ReShare/index.js"
 import { AsyncStorage } from "react-native"
+import OfferComponent from "../components/OfferComponent"
+const { height, width } = Dimensions.get("window");
 
 import { db } from '../config';
 let offersRef = db.ref('/offers');
@@ -31,6 +33,77 @@ class Home extends Component{
       {key: 'Toys & Games'},
     ]
   };
+
+  renderHeader = () => {
+    return (
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={{ flex: 0 }}>
+        <View
+           style={{
+             backgroundColor: "white",
+             height: 80,
+             borderBottomWidth: 1,
+             borderBottomColor: "#dddddd"
+           }}
+         >
+           <View
+             style={{
+               flexDirection: "row",
+               padding: 10,
+               backgroundColor: "white",
+               marginHorizontal: 20,
+               marginVertical: 10,
+               shadowOffset: { width: 0, height: 0 },
+               shadowColor: "black",
+               shadowOpacity: 0.2
+             }}
+           >
+             <Icon name="ios-search" color="grey" size={20} style={{ marginRight: 10 }} />
+             <TextInput
+               underlineColorAndroid="transparent"
+               placeholder="Search offers"
+               placeholderTextColor="grey"
+               style={{ flex: 1, fontWeight: "700", backgroundColor: "white" }}
+               onSubmitEditing={text => this.handleSearch(text.nativeEvent.text)}
+               clearButtonMode={ 'while-editing'}
+             />
+           </View>
+         </View>
+        </View>
+        <View style={{flexDirection: 'row'}}>
+          <Text style={{marginHorizontal: 5, marginTop: 15, fontWeight: 'bold', fontSize: 25}}>Categories</Text>
+          <Text style={{marginHorizontal: 5, marginTop: 30, fontSize: 12, textAlign:'right', width: 230, color: 'grey'}} onPress={() => {this.props.navigation.navigate('Categories')}}>See all ></Text>
+        </View>
+        <View>
+          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+            <FlatList
+              scrollEnabled = {false}
+              style = {styles.categoryStyle}
+              data = {this.state.categories}
+              contentContainerStyle={{alignSelf: 'flex-start'}}
+              numColumns={this.state.categories.length / 2}
+              showsVerticalScrollIndicator={false}
+              showsHorizontalScrollIndicator={false}
+              renderItem = {({item} ) => (
+                <View>
+                  <TouchableHighlight style = {styles.categoryIconStyle} onPress={() => {this.selectCategory(item)}}>
+                    {this.renderImage(item.key)}
+                  </TouchableHighlight>
+
+                  <TouchableHighlight style = {styles.categoryItemStyle} onPress={() => {this.selectCategory(item)}}>
+                    <Text style={{width: 120, textAlign:'center'}}>
+                      {item.key}
+                    </Text>
+                  </TouchableHighlight>
+                </View>
+              )}
+            ></FlatList>
+          </ScrollView>
+        </View>
+        <Text style={{marginHorizontal: 10, marginTop: 15, fontWeight: 'bold', fontSize: 25}}>Recent Offers</Text>
+        </SafeAreaView>
+        )
+  }
 
   renderSeparator = () => {
     return(
@@ -151,88 +224,33 @@ class Home extends Component{
     const { currentUser } = this.state
     return (
       <SafeAreaView style={{ flex: 1 }}>
-        <View style={{ flex: 0 }}>
-        <View
-           style={{
-             backgroundColor: "white",
-             height: 80,
-             borderBottomWidth: 1,
-             borderBottomColor: "#dddddd"
-           }}
-         >
-           <View
-             style={{
-               flexDirection: "row",
-               padding: 10,
-               backgroundColor: "white",
-               marginHorizontal: 20,
-               marginVertical: 10,
-               shadowOffset: { width: 0, height: 0 },
-               shadowColor: "black",
-               shadowOpacity: 0.2
-             }}
-           >
-             <Icon name="ios-search" color="grey" size={20} style={{ marginRight: 10 }} />
-             <TextInput
-               underlineColorAndroid="transparent"
-               placeholder="Search offers"
-               placeholderTextColor="grey"
-               style={{ flex: 1, fontWeight: "700", backgroundColor: "white" }}
-               onSubmitEditing={text => this.handleSearch(text.nativeEvent.text)}
-               clearButtonMode={ 'while-editing'}
-             />
-           </View>
-         </View>
-        </View>
-        <View style={{flexDirection: 'row'}}>
-          <Text style={{marginHorizontal: 10, marginTop: 15, fontWeight: 'bold', fontSize: 25}}>Categories</Text>
-          <Text style={{marginHorizontal: 10, marginTop: 30, fontSize: 12, textAlign:'right', width: 230, color: 'grey'}} onPress={() => {this.props.navigation.navigate('Categories')}}>See all ></Text>
-        </View>
-        <View>
-          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-            <FlatList
-              scrollEnabled = {false}
-              style = {styles.listStyle}
-              data = {this.state.categories}
-              contentContainerStyle={{alignSelf: 'flex-start'}}
-              numColumns={this.state.categories.length / 2}
-              showsVerticalScrollIndicator={false}
-              showsHorizontalScrollIndicator={false}
-              renderItem = {({item} ) => (
-                <View>
-                  <TouchableHighlight style = {styles.categoryIconStyle} onPress={() => {this.selectCategory(item)}}>
-                  {this.renderImage(item.key)}
-                  </TouchableHighlight>
-
-                  <TouchableHighlight style = {styles.categoryItemStyle} onPress={() => {this.selectCategory(item)}}>
-                  <Text style={{width: 120, textAlign:'center'}}>
-                    {item.key}
-                  </Text>
-                  </TouchableHighlight>
-              </View>
-              )}
-            ></FlatList>
-          </ScrollView>
-        </View>
-        <Text style={{marginHorizontal: 10, marginTop: 15, fontWeight: 'bold', fontSize: 25}}>Recent Offers</Text>
         {this.state.offers.length > 0 ? (
-          <FlatList
-          style = {styles.listStyle}
-          data = {this.state.offers}
-          renderItem = {({item} ) => (
-            <TouchableHighlight style = {styles.listItemStyle} onPress={() => {this.pressRow(item)}}>
-            <Text>
-              {item.name}
-            </Text>
-            </TouchableHighlight>
-          ) }
-          keyExtractor={(item, index) => index.toString()}
-          ItemSeparatorComponent={this.renderSeparator}
-        />
+          <View style={[styles.flex, styles.column, styles.recommended]}>
+          <View style={[styles.column]}>
+            <FlatList
+            numColumns = {2}
+            showsVerticalScrollIndicator = {false}
+            pagingEnabled = {true}
+            scrollEnabled = {true}
+            scrollEventThrottle = {16}
+            snapToAlignment = "center"
+            style = {styles.listStyle}
+            data = {this.state.offers}
+            renderItem = {({item} ) => (
+              <TouchableHighlight style = {styles.listItemStyle} onPress={() => {this.pressRow(item)}}>
+                <OfferComponent
+                    item = {item}
+                />
+              </TouchableHighlight>
+            ) }
+            keyExtractor={(item, index) => index.toString()}
+            ListHeaderComponent={this.renderHeader}
+          />
+          </View>
+          </View>
         ) : (
           <Text style = {{marginVertical: 20, marginHorizontal: 10}}>No offers</Text>
         )}
-        
       </SafeAreaView>
     ); 
   }
@@ -248,7 +266,11 @@ const styles = StyleSheet.create({
   listStyle:
   {
     marginVertical: 10,
-    marginHorizontal: 10
+    marginHorizontal: 10,
+  },
+  categoryStyle:
+  {
+    marginVertical: 10
   },
   listItemStyle:
   {
@@ -259,7 +281,10 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     marginRight: 5
   },
-  categoryIconStyle:
-  {
-  }
+  flex: {
+    flex: 1,
+},
+column: {
+    flexDirection: 'column'
+}
 });

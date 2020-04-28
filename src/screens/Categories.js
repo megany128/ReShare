@@ -100,7 +100,7 @@ class Categories extends Component{
             color='grey'
             size={40}
             style={{ marginHorizontal: 20, marginVertical: 10 }}
-            onPress={() => this.props.navigation.navigate('SearchResults')}
+            onPress={() => this.props.navigation.navigate('Home')}
             hitSlop={{top: 20, bottom: 20, left: 50, right: 50}}
             />
           <Text style={{marginHorizontal: 5, marginVertical: 15, fontWeight: 'bold', fontSize: 25}}>Categories</Text>
