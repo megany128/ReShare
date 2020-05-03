@@ -1,25 +1,31 @@
 import React from 'react'
 import { StyleSheet, Text, TextInput, View, Button, TouchableOpacity} from 'react-native'
 import firebase from 'firebase'
+import { AsyncStorage } from "react-native"
 
 export default class SignUp extends React.Component {
   state = { email: '', password: '', name: '', errorMessage: null }
-handleSignUp = () => {
-  const { email, password } = this.state
-  firebase.auth().createUserWithEmailAndPassword(email, password)
-      .then(
-        (user)=>
-        {
-          if(user){
-            user.updateProfile({
-              displayName: this.state.name
-            })
-          }
-        })
-      .catch(error => this.setState({ errorMessage: error.message }))
-  console.log('handleSignUp')
-}
-render() {
+
+  handleSignUp = () => {
+    firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password)
+    .then((userCredentials)=>{
+      console.log("created user")
+        if(userCredentials.user){
+          console.log("updating profile")
+          userCredentials.user.updateProfile({
+            displayName: this.state.name
+          }).then((s)=> {
+            AsyncStorage.setItem('userStatus', JSON.stringify('logged in'))
+            console.log('handleSignUp')
+            console.log(userCredentials.user)
+            this.props.navigation.navigate('Home');
+          })
+        }
+    })
+    .catch(error => this.setState({ errorMessage: error.message }))
+  }
+
+  render() {
     return (
       <View style={styles.container}>
         <Text style={styles.logo}>ReShare</Text>

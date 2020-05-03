@@ -1,6 +1,7 @@
 import React from 'react'
 import { StyleSheet, Text, TextInput, View, Button, TouchableOpacity} from 'react-native'
 import firebase from 'firebase'
+import { AsyncStorage } from "react-native"
 
 export default class Login extends React.Component {
   state = { email: '', password: '', errorMessage: null }
@@ -9,7 +10,7 @@ export default class Login extends React.Component {
     firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
-      .then(() => this.props.navigation.navigate('Home'))
+      .then(() => AsyncStorage.setItem('userStatus', true), this.props.navigation.navigate('Home'))
       .catch(error => this.setState({ errorMessage: error.message }))
       console.log('handleLogin')
   }

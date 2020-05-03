@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {View, Button, Text, StyleSheet} from 'react-native';
 import firebase from 'firebase'
+import { AsyncStorage } from "react-native"
 
 export default class Profile extends React.Component {
   state = { currentUser: null }
@@ -27,6 +28,7 @@ export default class Profile extends React.Component {
          title="Sign out"
          onPress={() => 
           {
+          AsyncStorage.setItem('userStatus', JSON.stringify('not logged in'))
           firebase.auth().signOut();
           this.props.navigation.navigate('Loading');
         }}
