@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
-import {View, Button, Text, StyleSheet} from 'react-native';
+import {View, Button, Text, StyleSheet, Image, SafeAreaView, Dimensions} from 'react-native';
 import firebase from 'firebase'
 import { AsyncStorage } from "react-native"
+import { ifIphoneX } from 'react-native-iphone-x-helper'
 
 export default class Profile extends React.Component {
   state = { currentUser: null }
@@ -13,16 +14,17 @@ export default class Profile extends React.Component {
     }
     return () => mounted = false;
 
-    //const { name } = firebase.auth().currentUser.displayName
-    //this.setState({ name })
   }
   render() {
     const { currentUser } = this.state
-    //const { name } = this.state.name
     return (
-      <View style={styles.container}>
-        <Text>Profile</Text>
-        
+      <View style={{ flex: 1 }}>
+        <SafeAreaView style={styles.profile}>
+          <Image 
+          source={require('../icons/exampleOfferImg.jpeg')}
+          style={[styles.inProfile, {width: 125, height: 125, borderRadius: 400/ 2}]}/>
+        </SafeAreaView>
+        <Text>Name: {currentUser && currentUser.displayName}</Text>
         <Text>Email address: {currentUser && currentUser.email}</Text>
         <Button
          title="Sign out"
@@ -44,4 +46,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  profile: {
+    height: Dimensions.get('window').height * 0.27,
+    width: '100%',
+    backgroundColor: "#84DAC1"
+  },
+  inProfile: {
+    marginTop: 20,
+    marginHorizontal: 20
+  }
 });

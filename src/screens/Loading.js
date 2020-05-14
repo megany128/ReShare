@@ -34,7 +34,7 @@ export default class Loading extends React.Component{
       catch(err){
         console.log('Failed to load user status')
       }
-      }
+    }
     return () => mounted = false;
   }
 

@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component, useState } from 'react';
 import {View,
   Text,
   TouchableHighlight,
@@ -8,8 +8,13 @@ import {View,
 import RNPickerSelect, { defaultStyles } from 'react-native-picker-select';
 import { db } from '../config';
 import firebase from 'firebase'
+import 'firebase/storage';
+
 import moment from "moment";
+import ResourceImagePicker from "../components/ResourceImagePicker"
 moment.locale('en-gb'); 
+import * as Permissions from 'expo-permissions';
+import Constants from 'expo-constants';
 
 class Add extends Component {
   state = {
@@ -20,12 +25,29 @@ class Add extends Component {
     description: '',
     location: '',
     expiry: '',
-    tags:''
+    tags:'',
+    imageUri: ''
   };
 
-  addOffer(name, author, category, date, description, location, expiry, tags){
+  componentDidMount() {
+    this.getPermissionAsync();
+
+    var user = firebase.auth().currentUser;
+  }
+
+  getPermissionAsync = async () => {
+    if (Constants.platform.ios) {
+      console.log('getting permission');
+      const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+      if (status !== 'granted') {
+        alert('Sorry, we need camera roll permissions to make this work!');
+      }
+    }
+  }
+
+  addOffer(name, author, category, date, description, location, expiry, imageURI){
     db.ref('/offers').push({
-      name, author, category, date, description, location, expiry, tags
+      name, author, category, date, description, location, expiry, imageURI
     });
   };
 
@@ -34,17 +56,59 @@ class Add extends Component {
       e: e.nativeEvent.text
     });
   };
+
+
+  setOfferImage = (uri) => {
+    this.setState({ imageUri: uri.uri })
+  }
   
   handleSubmit = () => {
-    this.addOffer(this.state.name, this.state.author, this.state.category, this.state.date, this.state.description, this.state.location, this.state.expiry, this.state.tags);
+    this.uriToBlob(this.state.imageUri).then(function(blob) {
+      return this.uploadToFirebase(blob)
+    });
+    this.addOffer(this.state.name, this.state.author, this.state.category, this.state.date, this.state.description, this.state.location, this.state.expiry, this.state.imageUri);
     Alert.alert('Offer saved successfully');
   };
-  
+
+  uriToBlob = (uri) => {
+    console.log('uri: ' + uri)
+    return new Promise(function(resolve, reject) {
+      try {
+          var xhr = new XMLHttpRequest();
+          xhr.open("GET", uri);
+          xhr.responseType = "blob";
+          xhr.onerror = function() {reject("Network error.")};
+          xhr.onload = function() {
+              if (xhr.status === 200) {resolve(xhr.response)}
+              else {reject("Loading error:" + xhr.statusText)}
+          };
+          xhr.send();
+      }
+      catch(err) {reject(err.message)}
+    })
+  }
+
+  uploadToFirebase = (blob) => {
+    console.log('uploading to firebase')
+    return new Promise((resolve, reject)=>{
+      var storageRef = firebase.storage().ref();
+      storageRef.child('uploads/photo.jpg').put(blob, {
+        contentType: 'image/jpeg'
+      }).then((snapshot)=>{
+        blob.close();
+        resolve(snapshot);
+      }).catch((error)=>{
+        reject(error);
+      });
+    });
+  }
+
   render() {
     // TO DO: In description, prompt users to specify if they are fine with users taking partial amounts or if it has to be all
     return (
       <View style={styles.main}>
         <Text style={styles.title}>Add Offer</Text>
+        <ResourceImagePicker image={this.state.image} onImagePicked={this.setOfferImage}/>
         <TextInput style={styles.itemInput} placeholder = "Offer title" onChangeText={name => this.setState({ name })} />
         <RNPickerSelect
             style={pickerSelectStyles.inputIOS}

@@ -42,7 +42,7 @@ export default class Offer extends React.Component {
         return(
         <View style = {styles.container}>
             <Text> Name: {name}</Text>
-            <Text> Author: {this.getAuthor(author)} </Text>
+            <Text> Author: {author} </Text>
             <Text> Description: {description}</Text>
             <Text> Category: {category}</Text>
             <Text> Expiry: {expiry}</Text>

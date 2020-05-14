@@ -7,6 +7,7 @@ import { contains } from "/Users/meganyap/Desktop/ReShare/ReShare/index.js"
 import { AsyncStorage } from "react-native"
 import OfferComponent from "../components/OfferComponent"
 const { height, width } = Dimensions.get("window");
+//import firestore from '@react-native-firebase/firestore';
 
 import { db } from '../config';
 let offersRef = db.ref('/offers');

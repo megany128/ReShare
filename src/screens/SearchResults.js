@@ -7,6 +7,7 @@ import { contains, categoryFilter, locationFilter } from "/Users/meganyap/Deskto
 import { Dimensions } from 'react-native';
 import { AsyncStorage } from "react-native"
 import moment from "moment";
+import OfferComponent from "../components/OfferComponent"
 
 import { db } from '../config';
 let offersRef = db.ref('/offers');
@@ -346,17 +347,22 @@ class SearchResults extends Component{
 
         {this.state.offers.length > 0 ? (
           <FlatList
+          numColumns = {2}
+          showsVerticalScrollIndicator = {false}
+          pagingEnabled = {true}
+          scrollEnabled = {true}
+          scrollEventThrottle = {16}
+          snapToAlignment = "center"
           style = {styles.listStyle}
           data = {this.state.offers}
           renderItem = {({item} ) => (
             <TouchableHighlight style = {styles.listItemStyle} onPress={() => {this.pressRow(item)}}>
-            <Text>
-              {item.name}
-            </Text>
+            <OfferComponent
+                    item = {item}
+                />
             </TouchableHighlight>
           ) }
           keyExtractor={(item, index) => index.toString()}
-          ItemSeparatorComponent={this.renderSeparator}
         />
         ) : (
           <Text style = {{marginVertical: 20, marginHorizontal: 10}}>No offers</Text>
