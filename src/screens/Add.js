@@ -9,6 +9,8 @@ import RNPickerSelect, { defaultStyles } from 'react-native-picker-select';
 import { db } from '../config';
 import firebase from 'firebase'
 import 'firebase/storage';
+import uuid from 'react-native-uuid';
+import { AsyncStorage } from "react-native"
 
 import ResourceImagePicker from "../components/ResourceImagePicker"
 import * as Permissions from 'expo-permissions';
@@ -45,9 +47,9 @@ class Add extends Component {
     }
   }
 
-  addOffer(name, author, category, time, description, location, expiry, imageURI){
+  addOffer(name, author, category, time, description, location, expiry, id){
     db.ref('/offers').push({
-      name, author, category, time, description, location, expiry, imageURI
+      name, author, category, time, description, location, expiry, id
     });
   };
 
@@ -66,8 +68,6 @@ class Add extends Component {
     this.uriToBlob(this.state.imageUri).then((blob) => {
       return this.uploadToFirebase(blob);
     });
-    this.addOffer(this.state.name, this.state.author, this.state.category, this.state.time, this.state.description, this.state.location, this.state.expiry, this.state.imageUri);
-    Alert.alert('Offer saved successfully');
   };
 
   uriToBlob = (uri) => {
@@ -92,7 +92,11 @@ class Add extends Component {
     console.log('uploading to firebase')
     return new Promise((resolve, reject)=>{
       var storageRef = firebase.storage().ref();
-      storageRef.child('offers/photo.jpg').put(blob, {
+      const imageUuid = uuid.v1();
+      console.log('uuid: ' + imageUuid)
+      this.addOffer(this.state.name, this.state.author, this.state.category, this.state.time, this.state.description, this.state.location, this.state.expiry, imageUuid);
+      Alert.alert('Offer saved successfully');
+      storageRef.child('offers/' + imageUuid + '.jpg').put(blob, {
         contentType: 'image/jpeg'
       }).then((snapshot)=>{
         blob.close();

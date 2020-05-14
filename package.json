@@ -12,6 +12,7 @@
     "@react-native-firebase/firestore": "^6.7.1",
     "@react-native-firebase/functions": "^6.4.0",
     "@react-native-firebase/storage": "^6.7.1",
+    "buffer": "^5.6.0",
     "expo": "~36.0.0",
     "expo-image-picker": "^8.1.0",
     "firebase": "^7.14.0",
