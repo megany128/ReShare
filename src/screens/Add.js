@@ -10,18 +10,18 @@ import { db } from '../config';
 import firebase from 'firebase'
 import 'firebase/storage';
 
-import moment from "moment";
 import ResourceImagePicker from "../components/ResourceImagePicker"
-moment.locale('en-gb'); 
 import * as Permissions from 'expo-permissions';
 import Constants from 'expo-constants';
+
+let offersRef = db.ref('/offers');
 
 class Add extends Component {
   state = {
     name: '',
     author: firebase.auth().currentUser.uid,
     category: '',
-    date: moment(new Date()).format('L'),
+    time: firebase.database.ServerValue.TIMESTAMP,
     description: '',
     location: '',
     expiry: '',
@@ -45,9 +45,9 @@ class Add extends Component {
     }
   }
 
-  addOffer(name, author, category, date, description, location, expiry, imageURI){
+  addOffer(name, author, category, time, description, location, expiry, imageURI){
     db.ref('/offers').push({
-      name, author, category, date, description, location, expiry, imageURI
+      name, author, category, time, description, location, expiry, imageURI
     });
   };
 
@@ -63,10 +63,10 @@ class Add extends Component {
   }
   
   handleSubmit = () => {
-    this.uriToBlob(this.state.imageUri).then(function(blob) {
-      return this.uploadToFirebase(blob)
+    this.uriToBlob(this.state.imageUri).then((blob) => {
+      return this.uploadToFirebase(blob);
     });
-    this.addOffer(this.state.name, this.state.author, this.state.category, this.state.date, this.state.description, this.state.location, this.state.expiry, this.state.imageUri);
+    this.addOffer(this.state.name, this.state.author, this.state.category, this.state.time, this.state.description, this.state.location, this.state.expiry, this.state.imageUri);
     Alert.alert('Offer saved successfully');
   };
 
@@ -92,7 +92,7 @@ class Add extends Component {
     console.log('uploading to firebase')
     return new Promise((resolve, reject)=>{
       var storageRef = firebase.storage().ref();
-      storageRef.child('uploads/photo.jpg').put(blob, {
+      storageRef.child('offers/photo.jpg').put(blob, {
         contentType: 'image/jpeg'
       }).then((snapshot)=>{
         blob.close();

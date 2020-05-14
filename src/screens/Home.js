@@ -128,7 +128,7 @@ class Home extends Component{
         this.setState({ offers });
         this.setState({ fullData })
 
-        const sortedOffers = offers.sort((a, b) => Date.parse(new Date(a.date.split("/").reverse().join("-"))) - Date.parse(new Date(b.date.split("/").reverse().join("-"))))
+        const sortedOffers = offers.sort(function(a, b) {return b.time - a.time});
           this.setState({ offers: sortedOffers })
       });
     }

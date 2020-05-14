@@ -8,14 +8,11 @@ class OfferComponent extends Component {
       <View>
         <View style={[styles.flex, styles.column, styles.recommendation]}>
           <View style={[styles.flex, styles.recommendationHeader, styles.shadow]}>
-            <Image
-                    style = {styles.recommendationImage}
-                    source={require('../icons/exampleOfferImg.jpeg')}
-            />
+            <Image style = {styles.recommendationImage} source={require('../icons/exampleOfferImg.jpeg')}/>
           </View>
         </View>
-        <View style={[styles.flex, styles.column, { justifyContent: 'space-evenly', paddingHorizontal: 12 }]}>
-          <Text style={{ fontSize: 16 * 1.25, fontWeight: '500', paddingBottom: 36 / 4.5}}>{this.props.item.name} </Text>
+        <View style={[styles.flex, styles.column, { justifyContent: 'space-evenly', paddingHorizontal: 12, flexDirection: 'row' }]}>
+          <Text style={{ fontSize: 16 * 1.25, fontWeight: '500', paddingBottom: 36 / 4.5, flexWrap: 'wrap', flex: 1 }}>{this.props.item.name} </Text>
           <Text style={{ color: '#BCCCD4' }}>{this.props.item.category} </Text>
         </View>
       </View>  

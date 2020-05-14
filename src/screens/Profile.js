@@ -67,8 +67,8 @@ export default class Profile extends React.Component {
             </View>
           </View>
         </SafeAreaView>
-        <View style={styles.myOffers}>
-          <Text style={{marginHorizontal: 10, marginTop: 15, fontWeight: 'bold', fontSize: 25}}>My Listings</Text>
+        <View>
+          <Text style={{marginHorizontal: 20, marginTop: 15, fontWeight: 'bold', fontSize: 25}}>My Listings</Text>
         </View>
       </View>
     )
@@ -99,10 +99,9 @@ export default class Profile extends React.Component {
               scrollEnabled = {true}
               scrollEventThrottle = {16}
               snapToAlignment = "center"
-              style = {styles.listStyle}
               data = {this.state.offers}
               renderItem = {({item} ) => (
-                <TouchableHighlight style = {styles.listItemStyle} onPress={() => {this.pressRow(item)}}>
+                <TouchableHighlight style = {{ marginHorizontal: 10 }} onPress={() => {this.pressRow(item)}}>
                   <OfferComponent
                       item = {item}
                   />
@@ -146,8 +145,5 @@ const styles = StyleSheet.create({
     color: 'white',
     flex: 1,
     flexWrap: 'wrap'
-  },
-  myOffers: {
-    marginHorizontal: 5
   }
 });
