@@ -93,6 +93,7 @@ class SearchResults extends Component{
                 console.log('sorting by date')
                 const offers = this.state.offers.sort((a, b) => Date.parse(new Date(a.date.split("/").reverse().join("-"))) - Date.parse(new Date(b.date.split("/").reverse().join("-"))))
                 this.setState({ offers })
+                console.log(offers)
               }
               else if(this.state.currentSort === "Expiry")
               {
@@ -123,16 +124,6 @@ class SearchResults extends Component{
       tags: item.tags,
       time: item.time
     })
-  }
-
-  renderItem(item){
-    return(
-      <TouchableHighlight onPress={() => {this.pressRow(item)}}>
-          <Text>
-            {item.name}
-          </Text>
-      </TouchableHighlight>
-    )
   }
 
   FlatListItemSeparator = () => <View style={styles.line} />;

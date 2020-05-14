@@ -1,6 +1,3 @@
-if(__DEV__) {
-    import('./ReactotronConfig').then(() => console.log('Reactotron Configured'))
-  }
 import _ from 'lodash';
 
 export const contains = ({name, description}, query) => {
@@ -25,6 +22,14 @@ export const locationFilter = ({location}, filter) => {
     console.log('location: ' + location)
     console.log('filter: ' + filter)
     if (location === filter)
+    {
+        return true;
+    }
+    return false;
+};
+
+export const byAuthor = ({author}, authorID) => {
+    if (author === authorID)
     {
         return true;
     }
