@@ -1,5 +1,6 @@
 import {createAppContainer, createSwitchNavigator, SwitchNavigator} from 'react-navigation';
 import {createBottomTabNavigator} from 'react-navigation-tabs';
+import { createStackNavigator } from 'react-navigation-stack'
 
 import Ion from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -87,11 +88,89 @@ const MainTabs = createBottomTabNavigator(
   }
 },
 );
+  const stackNavigator = createStackNavigator(
+      { 
+        Loading: {
+          screen: Loading,
+          navigationOptions: {
+            headerShown: false,
+            headerBackTitle: 'Back'
+          }
+        },
+        SignUp: {
+          screen: SignUp,
+          navigationOptions: {
+            headerShown: false,
+            headerBackTitle: 'Back'
+          }
+        },
+        Login: {
+          screen: Login,
+          navigationOptions: {
+            headerShown: false,
+            headerBackTitle: 'Back'
+          }
+        },
+        MainTabs: {
+          screen: MainTabs,
+          navigationOptions: {
+            headerShown: false,
+            headerStyle: {
+              backgroundColor: 'white'
+            },
+            headerBackTitle: 'Back'
+        }
+        },
+        Offer: {
+          screen: Offer,
+          navigationOptions: {
+            headerShown: false,
+            headerBackTitle: 'Back'
+          }
+        },
+        SearchResults: {
+          screen: SearchResults,
+          navigationOptions: {
+            headerShown: false,
+            header: {
+              style: {
+                backgroundColor: 'white'
+              }
+            },
+            headerBackTitle: 'Back'
+          }
+        },
+        CategorySelector: {
+          screen: CategorySelector,
+          navigationOptions: {
+            headerShown: false,
+            headerBackTitle: 'Back'
+          }
+        },
+        LocationSelector: {
+          screen: LocationSelector,
+          navigationOptions: {
+            headerShown: false,
+            headerBackTitle: 'Back'
+          }
+        },
+        SortSelector: {
+          screen: SortSelector,
+          navigationOptions: {
+            headerShown: false,
+            headerBackTitle: 'Back'
+          }
+        },
+        Categories: {
+          screen: Categories,
+          navigationOptions: {
+            headerShown: false,
+            headerBackTitle: 'Back'
+          }
+        },
+      },
+      { initialRouteName: "Loading"}
+  )
 
-const switchNavigator = createSwitchNavigator(
-  { Loading, SignUp, Login, MainTabs, Offer, SearchResults, CategorySelector, LocationSelector, SortSelector, Categories},
-  { initialRouteName: "Loading" }
-  );
-
-const App = createAppContainer(switchNavigator);
+const App = createAppContainer(stackNavigator);
 export default App;
