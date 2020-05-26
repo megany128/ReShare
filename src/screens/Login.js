@@ -10,7 +10,7 @@ export default class Login extends React.Component {
     firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
-      .then(() => AsyncStorage.setItem('userStatus', true), this.props.navigation.navigate('Home'))
+      .then(() => AsyncStorage.setItem('userStatus', true), this.props.navigation.navigate('stackNavigator'))
       .catch(error => this.setState({ errorMessage: error.message }))
       console.log('handleLogin')
   }
@@ -84,6 +84,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#2C2061',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'white'
   },
   logo:{
     fontWeight:"bold",

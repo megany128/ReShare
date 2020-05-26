@@ -72,7 +72,7 @@ class SortSelector extends Component{
   render() {
     const { currentUser } = this.state
     return (
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
         <View style={{ flex: 0 }}>
         <View
            style={{
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   listStyle:
   {

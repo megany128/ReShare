@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, Text, TouchableOpacity, ImageBackground, ScrollView, StyleSheet, TextInput, SafeAreaView, Platform, Image, FlatList, TouchableHighlight} from "react-native";
+import {View, Text, TouchableOpacity, ImageBackground, ScrollView, StyleSheet, Image, Alert } from "react-native";
 import { Header } from 'react-native-elements'
 import Icon from "react-native-vector-icons/SimpleLineIcons";
 import Icon2 from "react-native-vector-icons/MaterialCommunityIcons"
@@ -27,7 +27,8 @@ export default class Offer extends React.PureComponent {
     expiry: '',
     location: '',
     time: '',
-    url: '../icons/exampleOfferImg.jpeg'
+    url: '../icons/exampleOfferImg.jpeg',
+    key: ''
   }
 
   _menu = null;
@@ -76,6 +77,9 @@ export default class Offer extends React.PureComponent {
       const ref = firebase.storage().ref('offers/' + {imageID}.imageID + '.jpg');
       const url = await ref.getDownloadURL();
       this.setState({ url })
+
+      const key = navigation.getParam('key', 'no key')
+      this.setState({ key })
     }
     return () => mounted = false;
   }
@@ -153,11 +157,10 @@ export default class Offer extends React.PureComponent {
                       onPress={this.showMenu}
                     />}
                   >
-                    <MenuItem onPress={this.hideMenu}>Share</MenuItem>
                     <MenuItem onPress={this.hideMenu}>Edit</MenuItem>
                     <MenuItem onPress={this.hideMenu}>Delete</MenuItem>
                     <MenuDivider />
-                    <MenuItem onPress={this.hideMenu}>Report offer</MenuItem>
+                    <MenuItem onPress={this.reportOffer}>Report offer</MenuItem>
                   </Menu>
                 </View>
               </View>
@@ -166,7 +169,19 @@ export default class Offer extends React.PureComponent {
         </View>
       )
     }
-    
+
+    reportOffer = () => {
+      Alert.alert(
+        "Offer Reported",
+        "The report has been sent and will be processed shortly. Thank you for contributing.",
+        [
+          {
+            text: "OK",
+            onPress: () => this.hideMenu()
+          }
+        ]
+      );
+    }
 
     render() {
         return (

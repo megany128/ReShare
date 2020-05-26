@@ -48,14 +48,15 @@ export default class Profile extends React.Component {
       expiry: item.expiry,
       location: item.location,
       tags: item.tags,
-      time: item.time
+      time: item.time,
+      imageID: item.id
     })
   }
 
   renderHeader = () => {
     const { currentUser } = this.state
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: 'white' }}>
         <SafeAreaView style={styles.profile}>
           <Image 
           source={require('../icons/exampleOfferImg.jpeg')}
@@ -91,7 +92,7 @@ export default class Profile extends React.Component {
   render() {
     const { currentUser } = this.state
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: 'white'}}>
           <FlatList
               numColumns = {2}
               showsVerticalScrollIndicator = {false}

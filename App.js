@@ -115,9 +115,7 @@ const MainTabs = createBottomTabNavigator(
           screen: MainTabs,
           navigationOptions: {
             headerShown: false,
-            headerStyle: {
-              backgroundColor: 'white'
-            },
+            headerStyle: { backgroundColor: 'white'},
             headerBackTitle: 'Back'
         }
         },
@@ -132,11 +130,7 @@ const MainTabs = createBottomTabNavigator(
           screen: SearchResults,
           navigationOptions: {
             headerShown: false,
-            header: {
-              style: {
-                backgroundColor: 'white'
-              }
-            },
+            headerStyle: { backgroundColor: 'white'},
             headerBackTitle: 'Back'
           }
         },

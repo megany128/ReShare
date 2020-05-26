@@ -8,8 +8,10 @@ import { Dimensions } from 'react-native';
 import { AsyncStorage } from "react-native"
 import moment from "moment";
 import OfferComponent from "../components/OfferComponent"
+import { NavigationEvents } from 'react-navigation';
 
 import { db } from '../config';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 let offersRef = db.ref('/offers');
 
 class SearchResults extends Component{
@@ -24,6 +26,86 @@ class SearchResults extends Component{
     currentSort: ""
   };
 
+  getData = () => {
+    offersRef.on('value', snapshot => {
+      let data = snapshot.val();
+      let offers = Object.values(data);
+      let fullData = Object.values(data);
+      this.setState({ offers });
+      this.setState({ fullData })
+
+      try {
+        AsyncStorage.getItem('categoryFilterState').then(data => {
+          if(data) {
+            const category = JSON.parse(data);
+            this.setState({ category })
+            console.log(category)
+          } 
+        });
+      }
+      catch(err){
+        console.log('Failed to load category filter')
+      }
+
+      try {
+        AsyncStorage.getItem('locationFilterState').then(data => {
+          if(data) {
+            const location = JSON.parse(data);
+            this.setState({ location })  
+          }          
+        });
+      }
+      catch(err){
+        console.log('Failed to load location filter')
+      }
+
+      try {
+        AsyncStorage.getItem('searchQuery').then(data => {
+          if(data) {
+            const query = JSON.parse(data);
+            this.setState({ query })  
+            this.handleSearch(this.state.query)
+          }          
+        });
+      }
+      catch(err){
+        console.log('Failed to load search query')
+      }
+
+      try {
+        AsyncStorage.getItem('sortState').then(data => {
+          if(data) {
+            const currentSort = JSON.parse(data);
+            this.setState({ currentSort });
+            if(this.state.currentSort === "Recent")
+            {
+              console.log('sorting by date')
+              const offers = this.state.offers.sort(function(a, b) {return b.time - a.time});
+              this.setState({ offers })
+            }
+            else if(this.state.currentSort === "Expiry")
+            {
+              console.log('sorting by expiry date')
+              const offers = this.state.offers.sort(function(a, b) {return b.time - a.time});
+              this.setState({ offers })
+            }
+          }          
+        });
+      }
+      catch(err){
+        console.log('Failed to load search query')
+      }
+    });
+  }
+
+  componentDidMount = () => {
+      let mounted = true;
+      if (mounted) {
+        this.getData()
+      }
+      return () => mounted = false;
+    }
+
   renderSeparator = () => {
     return(
       <View
@@ -35,80 +117,6 @@ class SearchResults extends Component{
      />
     );
   };
-
-  componentDidMount() {
-    let mounted = true;
-    if (mounted) {
-      offersRef.on('value', snapshot => {
-        let data = snapshot.val();
-        let offers = Object.values(data);
-        let fullData = Object.values(data);
-        this.setState({ offers });
-        this.setState({ fullData })
-
-        try {
-          AsyncStorage.getItem('categoryFilterState').then(data => {
-            if(data) {
-              const category = JSON.parse(data);
-              this.setState({ category })
-            } 
-          });
-        }
-        catch(err){
-          console.log('Failed to load category filter')
-        }
-
-        try {
-          AsyncStorage.getItem('locationFilterState').then(data => {
-            if(data) {
-              const location = JSON.parse(data);
-              this.setState({ location })  
-            }          
-          });
-        }
-        catch(err){
-          console.log('Failed to load location filter')
-        }
-
-        try {
-          AsyncStorage.getItem('searchQuery').then(data => {
-            if(data) {
-              const query = JSON.parse(data);
-              this.setState({ query })  
-              this.handleSearch(this.state.query)
-            }          
-          });
-        }
-        catch(err){
-          console.log('Failed to load search query')
-        }
-
-        try {
-          AsyncStorage.getItem('sortState').then(data => {
-            if(data) {
-              const currentSort = JSON.parse(data);
-              this.setState({ currentSort });
-              if(this.state.currentSort === "Recent")
-              {
-                console.log('sorting by date')
-                const offers = this.state.offers.sort(function(a, b) {return b.time - a.time});
-                this.setState({ offers })
-              }
-              else if(this.state.currentSort === "Expiry")
-              {
-                console.log('sorting by expiry date')
-                const offers = this.state.offers.sort(function(a, b) {return b.time - a.time});
-                this.setState({ offers })
-              }
-            }          
-          });
-        }
-        catch(err){
-          console.log('Failed to load search query')
-        }
-      });    }
-    return () => mounted = false;
-  }
 
   pressRow(item)
   {
@@ -146,14 +154,14 @@ class SearchResults extends Component{
       if (this.state.currentSort === "Recent")
         {
           console.log('sorting by date')
-          const offers = searchedOfferssearchedOffers.sort(function(a, b) {return b.time - a.time});
+          const offers = searchedOffers.sort(function(a, b) {return b.time - a.time});
           console.log(offers)
           this.setState({ offers })
         }
       else if(this.state.currentSort === "Expiry")
       {
         console.log('sorting by expiry date')
-        const offers = searchedOfferssearchedOffers.sort(function(a, b) {return b.time - a.time});
+        const offers = searchedOffers.sort(function(a, b) {return b.time - a.time});
         this.setState({ offers })
       }
     }
@@ -168,14 +176,14 @@ class SearchResults extends Component{
       if (this.state.currentSort === "Recent")
         {
           console.log('sorting by date')
-          const offers = searchedOfferssearchedOffers.sort(function(a, b) {return b.time - a.time});
+          const offers = searchedOffers.sort(function(a, b) {return b.time - a.time});
           console.log(offers)
           this.setState({ offers })
         }
       else if(this.state.currentSort === "Expiry")
       {
         console.log('sorting by expiry date')
-        const offers = searchedOfferssearchedOffers.sort(function(a, b) {return b.time - a.time});
+        const offers = searchedOffers.sort(function(a, b) {return b.time - a.time});
         this.setState({ offers })
       }
     }
@@ -190,7 +198,7 @@ class SearchResults extends Component{
       if (this.state.currentSort === "Recent")
         {
           console.log('sorting by date')
-          const offers = searchedOfferssearchedOffers.sort(function(a, b) {return b.time - a.time});
+          const offers = searchedOffers.sort(function(a, b) {return b.time - a.time});
           console.log(offers)
           this.setState({ offers })
         }
@@ -226,7 +234,7 @@ class SearchResults extends Component{
   } 
 
   selectCategory() {
-    this.props.navigation.navigate('CategorySelector')
+    this.props.navigation.navigate('CategorySelector') 
     }
 
   selectLocation() {
@@ -242,7 +250,8 @@ class SearchResults extends Component{
     const query = navigation.getParam('query', 'no query');
     const { currentUser } = this.state
     return (
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+        <NavigationEvents onDidFocus={() => this.getData()} />
         <View style={{ flex: 0 }}>
         <View
            style={{
@@ -251,14 +260,14 @@ class SearchResults extends Component{
              height: 70,
            }}
          >
-            <Icon
-            name="ios-arrow-back"
-            color='grey'
-            size={20}
-            style={{ marginHorizontal: 15, marginVertical: 20 }}
-            onPress={() => this.props.navigation.navigate('Home')}
-            hitSlop={{top: 20, bottom: 20, left: 50, right: 50}}
-            />
+           <TouchableWithoutFeedback onPress={() => this.props.navigation.goBack()} hitSlop={{top: 20, bottom: 20, left: 50, right: 50}}>
+              <Icon
+              name="ios-arrow-back"
+              color='grey'
+              size={20}
+              style={{ marginHorizontal: 15, marginVertical: 20 }}
+              />
+            </TouchableWithoutFeedback>
         
            <View
              style={{
@@ -373,7 +382,8 @@ const styles = StyleSheet.create({
   listStyle:
   {
     marginVertical: 10,
-    marginHorizontal: 10
+    marginHorizontal: 10,
+    backgroundColor: 'white'
   },
   listItemStyle:
   {

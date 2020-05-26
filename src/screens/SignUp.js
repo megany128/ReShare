@@ -18,7 +18,7 @@ export default class SignUp extends React.Component {
             AsyncStorage.setItem('userStatus', JSON.stringify('logged in'))
             console.log('handleSignUp')
             console.log(userCredentials.user)
-            this.props.navigation.navigate('Home');
+            this.props.navigation.navigate('stackNavigator');
           })
         }
     })
@@ -90,6 +90,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#2C2061',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'white'
   },
   logo:{
     fontWeight:"bold",

@@ -81,7 +81,7 @@ class LocationSelector extends Component{
   render() {
     const { currentUser } = this.state
     return (
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
         <View style={{ flex: 0 }}>
         <View
            style={{

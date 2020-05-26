@@ -145,8 +145,9 @@ class Home extends Component{
       category: item.category,
       expiry: item.expiry,
       location: item.location,
-      tags: item.tags,
-      time: item.time
+      time: item.time,
+      imageID: item.id,
+      key: ''
     })
   }
   
@@ -224,7 +225,7 @@ class Home extends Component{
     const { navigation } = this.props; 
     const { currentUser } = this.state
     return (
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
         {this.state.offers.length > 0 ? (
           <View style={[styles.flex, styles.column, styles.recommended]}>
           <View style={[styles.column]}>
