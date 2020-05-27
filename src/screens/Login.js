@@ -83,8 +83,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#2C2061',
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'white'
+    justifyContent: 'center'
   },
   logo:{
     fontWeight:"bold",

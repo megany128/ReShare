@@ -21,8 +21,9 @@ import CategorySelector from './src/screens/CategorySelector'
 import LocationSelector from './src/screens/LocationSelector'
 import SortSelector from './src/screens/SortSelector'
 import Categories from './src/screens/Categories'
+import ChatScreen from './src/screens/ChatScreen'
 
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 
 const MainTabs = createBottomTabNavigator(
   {
@@ -116,7 +117,8 @@ const MainTabs = createBottomTabNavigator(
           navigationOptions: {
             headerShown: false,
             headerStyle: { backgroundColor: 'white'},
-            headerBackTitle: 'Back'
+            headerBackTitle: 'Back',
+            gestureEnabled: false
         }
         },
         Offer: {
@@ -162,6 +164,13 @@ const MainTabs = createBottomTabNavigator(
             headerBackTitle: 'Back'
           }
         },
+        ChatScreen: {
+          screen: ChatScreen,
+          navigationOptions: {
+            headerShown: false,
+            headerBackTitle: 'Back'
+          }
+        }
       },
       { initialRouteName: "Loading"}
   )

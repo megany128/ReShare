@@ -69,6 +69,10 @@ export default class Profile extends React.Component {
           </View>
         </SafeAreaView>
         <View>
+        <Button
+        title="temp chat"
+        onPress={() => {this.props.navigation.navigate('ChatScreen')}}
+      />
           <Text style={{marginHorizontal: 20, marginTop: 15, fontWeight: 'bold', fontSize: 25}}>My Listings</Text>
         </View>
       </View>
