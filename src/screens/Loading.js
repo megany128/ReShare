@@ -45,7 +45,7 @@ export default class Loading extends React.Component{
           this.props.navigation.navigate('Home')
         } else {
           console.log('user is not signed in')
-          this.props.navigation.navigate('SignUp')
+          this.props.navigation.navigate('SignUpIndividual')
 
         }
   }

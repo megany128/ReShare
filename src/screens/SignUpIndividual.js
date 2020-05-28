@@ -1,10 +1,10 @@
 import React from 'react'
-import { StyleSheet, Text, TextInput, View, Button, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, TextInput, View, Image, TouchableOpacity } from 'react-native'
 import firebase from 'firebase'
 import { AsyncStorage } from "react-native"
 import { db } from '../config'
 
-export default class SignUp extends React.Component {
+export default class SignUpIndividual extends React.Component {
   state = { email: '', password: '', name: '', errorMessage: null }
 
   handleSignUp = () => {
@@ -30,23 +30,39 @@ export default class SignUp extends React.Component {
   addUser(name, uid) {
     console.log('adding user to db')
     db.ref('users/' + uid).set({
-      name: name
+      name: name,
+      type: 'individual'
     })
   };
 
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.logo}>ReShare</Text>
+        <Image style={{ width: 240, height: 200 }} source={require('../icons/signup.png')} />
+        <Text style={styles.logo}>Sign up</Text>
         {this.state.errorMessage &&
           <Text style={{ color: 'red' }}>
             {this.state.errorMessage}
           </Text>}
 
+        <View style={{ flexDirection: 'row', marginLeft: 0, alignItems: 'flex-start' }}>
+          <TouchableOpacity style={[styles.filterBtn, { backgroundColor: '#84DAC1', borderColor: '#84DAC1', width: 150 }]}>
+            <Text style={{ color: "white", textTransform: "uppercase", fontWeight: 'bold' }}>
+              INDIVIDUAL
+                </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => this.props.navigation.navigate('SignUpOrganisation')} style={[styles.filterBtn, { backgroundColor: 'white', borderColor: '#F288AF', width: 150, marginLeft: 30 }]}>
+            <Text style={{ color: "#F288AF", textTransform: "uppercase", fontWeight: 'bold' }}>
+              ORGANISATION
+              </Text>
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.inputView}>
           <TextInput
             style={styles.inputText}
-            placeholder="Name/Organisation Name"
+            placeholder="Name"
             autoCapitalize="words"
             autoCorrect={true}
             onChangeText={name => this.setState({ name })}
@@ -79,12 +95,12 @@ export default class SignUp extends React.Component {
           />
         </View>
 
-        <TouchableOpacity style={styles.signUpBtn} onPress={this.handleSignUp}>
-          <Text style={styles.signUpText}>SIGN UP</Text>
+        <TouchableOpacity onPress={() => this.props.navigation.navigate('Login')}>
+          <Text style={styles.loginText}>Already have an account? Login here</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => this.props.navigation.navigate('Login')}>
-          <Text style={styles.loginText}>Already have an account? Login</Text>
+        <TouchableOpacity style={styles.signUpBtn} onPress={this.handleSignUp}>
+          <Text style={styles.signUpText}>SIGN UP</Text>
         </TouchableOpacity>
 
 
@@ -96,44 +112,61 @@ export default class SignUp extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#2C2061',
+    backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'center'
   },
   logo: {
     fontWeight: "bold",
-    fontSize: 50,
-    color: "#8FD5F5",
-    marginBottom: 40
+    fontSize: 40,
+    color: "#2C2061",
+    alignSelf: 'flex-start',
+    marginLeft: 45
   },
   inputView: {
     width: "80%",
-    backgroundColor: "#CFC8EF",
+    backgroundColor: "white",
     borderRadius: 25,
     height: 50,
     marginBottom: 20,
     justifyContent: "center",
-    padding: 20
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2, },
+    shadowOpacity: 0.2,
+    shadowRadius: 3.84
   },
   inputText: {
     height: 50,
     color: "#2C2061"
   },
   loginText: {
-    color: "white",
-    fontSize: 11
+    color: "#6C63FF",
+    fontSize: 11,
+    marginTop: 20
   },
   signUpBtn: {
-    width: "80%",
-    backgroundColor: "#8FD5F5",
+    width: "50%",
+    backgroundColor: "#2C2061",
     borderRadius: 25,
     height: 50,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 40,
+    marginTop: 20,
     marginBottom: 10
   },
   signUpText: {
-    color: "white"
+    color: "#CFC8EF",
+    fontWeight: 'bold',
+    fontSize: 17
+  },
+  filterBtn:
+  {
+    borderRadius: 25,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    marginVertical: 20
   }
 })

@@ -13,7 +13,8 @@ import Add from './src/screens/Add';
 import Groups from './src/screens/Groups';
 import Profile from './src/screens/Profile';
 import Loading from './src/screens/Loading';
-import SignUp from './src/screens/SignUp';
+import SignUpIndividual from './src/screens/SignUpIndividual';
+import SignUpOrganisation from './src/screens/SignUpOrganisation';
 import Login from './src/screens/Login';
 import Offer from './src/screens/Offer';  
 import SearchResults from './src/screens/SearchResults'
@@ -98,18 +99,28 @@ const MainTabs = createBottomTabNavigator(
             headerBackTitle: 'Back'
           }
         },
-        SignUp: {
-          screen: SignUp,
+        SignUpIndividual: {
+          screen: SignUpIndividual,
           navigationOptions: {
             headerShown: false,
-            headerBackTitle: 'Back'
+            headerBackTitle: 'Back',
+            animationEnabled: false
+          },
+        },
+        SignUpOrganisation: {
+          screen: SignUpOrganisation,
+          navigationOptions: {
+            headerShown: false,
+            headerBackTitle: 'Back',
+            animationEnabled: false
           }
         },
         Login: {
           screen: Login,
           navigationOptions: {
             headerShown: false,
-            headerBackTitle: 'Back'
+            headerBackTitle: 'Back',
+            animationEnabled: false
           }
         },
         MainTabs: {
