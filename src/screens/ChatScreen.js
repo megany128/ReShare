@@ -6,13 +6,17 @@ import firebase from 'firebase'
 
 const isIOS = Platform.OS === 'ios'
 
+import { db } from '../config';
+
+// Adapted from https://www.youtube.com/watch?v=omKU24SmBUM (date of retrieval: May 27)
+
 export default class ChatScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
             person: {
-                name: props.navigation.getParam('name', 'no name'),
-                id: props.navigation.getParam('id', 'no id')
+                id: props.navigation.getParam('id', 'no id'),
+                name: props.navigation.getParam('author', 'no author')
             },
             message: '',
             messageList: []
@@ -21,7 +25,8 @@ export default class ChatScreen extends Component {
         this.bottomPadding = new Animated.Value(60)
     }
 
-    componentDidMount() {
+    componentDidMount = () => {
+        console.log(this.state.person)
         this.keyboardShowListener = Keyboard.addListener(isIOS ? 'keyboardWillShow' : 'keyboardDidShow',
             (e) => this.keyboardEvent(e, true))
         this.keyboardHideListener = Keyboard.addListener(isIOS ? 'keyboardWillHide' : 'keyboardDidHide',
@@ -62,7 +67,6 @@ export default class ChatScreen extends Component {
 
     sendMessage = async () => {
         if (this.state.message.length > 0) {
-            // to check back on
             let msgId = firebase.database().ref('messages').child(firebase.auth().currentUser.uid).child(this.state.person.id).push().key
             let updates = {};
             let message = {

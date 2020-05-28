@@ -28,7 +28,18 @@ export default class Offer extends React.PureComponent {
     location: '',
     time: '',
     url: '../icons/exampleOfferImg.jpeg',
-    key: ''
+    key: '',
+    uid: ''
+  }
+
+  getAuthor = (uid) => {
+    var ref = firebase.database().ref("users/" + uid);
+    ref.once("value")
+      .then((snapshot) => {
+        const name = snapshot.child("name").val();
+        console.log(name)
+        this.setState({author: name})
+      });
   }
 
   _menu = null;
@@ -55,8 +66,9 @@ export default class Offer extends React.PureComponent {
       const name = navigation.getParam('name', 'no name');
       this.setState({ name })
 
-      const author = navigation.getParam('author', 'no author')
-      this.setState({ author })
+      const uid = navigation.getParam('uid', 'no uid')
+      this.setState({ uid })
+      this.getAuthor(uid)
 
       const description = navigation.getParam('description', 'no description');
       this.setState({ description })
@@ -82,24 +94,6 @@ export default class Offer extends React.PureComponent {
       this.setState({ key })
     }
     return () => mounted = false;
-  }
-
-  getAuthor(uid) {
-    var getUser = firebase.functions().httpsCallable('getUser');
-    console.log('success');
-    getUser({ uid: uid }).then(function (result) {
-      console.log('getUser called')
-      var user = result.data.uid;
-      return (
-        result
-      )
-
-    })
-      .catch(function (error) {
-        var code = error.code;
-        var message = error.message;
-        var details = error.details;
-      });
   }
 
   static defaultProps = {
@@ -198,7 +192,8 @@ export default class Offer extends React.PureComponent {
         <View style={styles.footer}>
           <TouchableOpacity style={styles.buttonFooter} onPress={() => {
             this.props.navigation.navigate('ChatScreen', {
-              id: this.state.author
+              id: this.state.uid,
+              author: this.state.author
             })
           }}>
             <Text style={styles.textFooter}>CONTACT DONOR</Text>
@@ -209,17 +204,3 @@ export default class Offer extends React.PureComponent {
   }
 
 }
-
-/*
-<Header
-                leftComponent={{ icon: 'menu', color: '#fff' }}
-                rightComponent={{ icon: 'home', color: '#fff' }}
-                containerStyle={{
-                  backgroundColor: 'rgba(52, 52, 52, 0.8',
-                  justifyContent: 'space-around',
-                  shadowColor: 'transparent',
-                  elevation: 0,
-                  borderBottomWidth: 0,
-                }}
-              />
-              */

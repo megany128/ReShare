@@ -123,7 +123,7 @@ class SearchResults extends Component{
     console.log(item)
     this.props.navigation.navigate('Offer',{
       name: item.name,
-      author: item.author,
+      uid: item.author,
       description: item.description,
       category: item.category,
       expiry: item.expiry,
