@@ -38,7 +38,7 @@ export default class SignUpOrganisation extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <Image style={{ width: 240, height: 200 }} source={require('../icons/signup.png')} />
+        <Image style={{ width: 192, height: 160 }} source={require('../icons/signup.png')} />
         <Text style={styles.logo}>Sign up</Text>
         {this.state.errorMessage &&
           <Text style={{ color: 'red' }}>
@@ -95,12 +95,12 @@ export default class SignUpOrganisation extends React.Component {
           />
         </View>
 
-        <TouchableOpacity onPress={() => this.props.navigation.navigate('Login')}>
-          <Text style={styles.loginText}>Already have an account? Login here</Text>
-        </TouchableOpacity>
-
         <TouchableOpacity style={styles.signUpBtn} onPress={this.handleSignUp}>
           <Text style={styles.signUpText}>SIGN UP</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => this.props.navigation.navigate('Login')}>
+          <Text style={styles.loginText}>Already have an account? Login here</Text>
         </TouchableOpacity>
 
 
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
   },
   loginText: {
     color: "#6C63FF",
-    fontSize: 11,
+    fontSize: 15,
     marginTop: 20
   },
   signUpBtn: {

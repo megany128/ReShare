@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, Text, TextInput, View, Button, TouchableOpacity} from 'react-native'
+import { StyleSheet, Text, TextInput, View, Image, TouchableOpacity } from 'react-native'
 import firebase from 'firebase'
 import { AsyncStorage } from "react-native"
 
@@ -12,11 +12,11 @@ export default class Login extends React.Component {
       .signInWithEmailAndPassword(email, password)
       .then(() => AsyncStorage.setItem('userStatus', true), this.props.navigation.navigate('stackNavigator'))
       .catch(error => this.setState({ errorMessage: error.message }))
-      console.log('handleLogin')
+    console.log('handleLogin')
   }
 
   forgotPassword = () => {
-    const {email} = this.state
+    const { email } = this.state
     firebase.auth().sendPasswordResetEmail(email)
       .then(function (user) {
         alert('Please check your email...')
@@ -29,51 +29,50 @@ export default class Login extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-      <Text style={styles.logo}>ReShare</Text>
-      {this.state.errorMessage &&
+        <Image style={{ width: 264, height: 220 }} source={require('../icons/login.png')} />
+        <Text style={styles.logo}>Log in</Text>
+        {this.state.errorMessage &&
           <Text style={{ color: 'red' }}>
             {this.state.errorMessage}
           </Text>}
-        
+
         <View style={styles.inputView}>
-          <TextInput  
-          style={styles.inputText}
-          autoCapitalize="none"
-          autoCorrect={false}
-          placeholder="Email" 
-          placeholderTextColor="#003f5c"
-          onChangeText={email => this.setState({ email })}
-          value={this.state.email}
-          keyboardType={'email-address'}
+          <TextInput
+            style={styles.inputText}
+            autoCapitalize="none"
+            autoCorrect={false}
+            placeholder="Email"
+            onChangeText={email => this.setState({ email })}
+            value={this.state.email}
+            keyboardType={'email-address'}
           />
         </View>
 
         <View style={styles.inputView}>
-          <TextInput  
-          style={styles.inputText}
-          autoCapitalize="none"
-          autoCorrect={false}
-          secureTextEntry={true}
-          placeholder="Password" 
-          placeholderTextColor="#003f5c"
-          onChangeText={password => this.setState({ password })}
-          value={this.state.password}
+          <TextInput
+            style={styles.inputText}
+            autoCapitalize="none"
+            autoCorrect={false}
+            secureTextEntry={true}
+            placeholder="Password"
+            onChangeText={password => this.setState({ password })}
+            value={this.state.password}
           />
         </View>
-
-        <TouchableOpacity onPress={this.forgotPassword}>
-          <Text style={styles.forgot}>Forgot Password?</Text>
-        </TouchableOpacity>
 
         <TouchableOpacity style={styles.loginBtn} onPress={this.handleLogin}>
           <Text style={styles.loginText}>LOGIN</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-          <Text style={styles.loginText}>Signup</Text>
+        <TouchableOpacity onPress={this.forgotPassword}>
+          <Text style={styles.forgot}>Forgot Password?</Text>
         </TouchableOpacity>
 
-       </View>
+        <TouchableOpacity onPress={() => this.props.navigation.navigate('SignUpIndividual')}>
+          <Text style={styles.signupText}>Don't have an account? Sign up here</Text>
+        </TouchableOpacity>
+
+      </View>
     )
   }
 }
@@ -81,44 +80,59 @@ export default class Login extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#2C2061',
+    backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'center'
   },
-  logo:{
-    fontWeight:"bold",
-    fontSize:50,
-    color:"#8FD5F5",
-    marginBottom:40
+  logo: {
+    fontWeight: "bold",
+    fontSize: 40,
+    color: "#2C2061",
+    alignSelf: 'flex-start',
+    marginLeft: 45,
+    marginBottom: 20,
+    marginTop: 20
   },
-  inputView:{
-    width:"80%",
-    backgroundColor:"#CFC8EF",
-    borderRadius:25,
-    height:50,
-    marginBottom:20,
-    justifyContent:"center",
-    padding:20
+  inputView: {
+    width: "80%",
+    backgroundColor: "white",
+    borderRadius: 25,
+    height: 50,
+    marginBottom: 20,
+    justifyContent: "center",
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2, },
+    shadowOpacity: 0.2,
+    shadowRadius: 3.84
   },
-  inputText:{
-    height:50,
-    color:"#2C2061"
+  inputText: {
+    height: 50,
+    color: "#2C2061"
   },
-  forgot:{
-    color:"white",
-    fontSize:11
+  signupText: {
+    color: "#6C63FF",
+    fontSize: 15,
+    marginTop: 20
   },
-  loginBtn:{
-    width:"80%",
-    backgroundColor:"#8FD5F5",
-    borderRadius:25,
-    height:50,
-    alignItems:"center",
-    justifyContent:"center",
-    marginTop:40,
-    marginBottom:10
+  forgot: {
+    color: "grey",
+    fontSize: 13,
+    marginTop: 10
   },
-  loginText:{
-    color:"white"
+  loginBtn: {
+    width: "50%",
+    backgroundColor: "#2C2061",
+    borderRadius: 25,
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 20,
+    marginBottom: 10
+  },
+  loginText: {
+    color: "#CFC8EF",
+    fontWeight: 'bold',
+    fontSize: 17
   }
 })
