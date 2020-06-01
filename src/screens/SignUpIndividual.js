@@ -3,9 +3,14 @@ import { StyleSheet, Text, TextInput, View, Image, TouchableOpacity } from 'reac
 import firebase from 'firebase'
 import { AsyncStorage } from "react-native"
 import { db } from '../config'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 export default class SignUpIndividual extends React.Component {
   state = { email: '', password: '', name: '', errorMessage: null }
+
+  componentDidMount = () => {
+    AsyncStorage.setItem('profileSetUp', JSON.stringify('not set up'))
+  }
 
   handleSignUp = () => {
     firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password)
@@ -17,10 +22,9 @@ export default class SignUpIndividual extends React.Component {
           userCredentials.user.updateProfile({
             displayName: this.state.name
           }).then((s) => {
-            AsyncStorage.setItem('userStatus', JSON.stringify('logged in'))
             console.log('handleSignUp')
             console.log(userCredentials.user)
-            this.props.navigation.navigate('stackNavigator');
+            this.props.navigation.navigate('SetupProfileIndividual');
           })
         }
       })
@@ -31,13 +35,20 @@ export default class SignUpIndividual extends React.Component {
     console.log('adding user to db')
     db.ref('users/' + uid).set({
       name: name,
-      type: 'individual'
+      type: 'individual',
+      bio: '',
+      phoneNumber: ''
     })
   };
 
   render() {
     return (
-      <View style={styles.container}>
+        <KeyboardAwareScrollView
+          style={{ backgroundColor: 'white' }}
+          resetScrollToCoords={{ x: 0, y: 0 }}
+          contentContainerStyle={styles.container}
+          scrollEnabled={false}
+        >   
         <Image style={{ width: 192, height: 160 }} source={require('../icons/signup.png')} />
         <Text style={styles.logo}>Sign up</Text>
         {this.state.errorMessage &&
@@ -67,6 +78,7 @@ export default class SignUpIndividual extends React.Component {
             autoCorrect={true}
             onChangeText={name => this.setState({ name })}
             value={this.state.name}
+            textContentType='name'
           />
         </View>
 
@@ -79,6 +91,7 @@ export default class SignUpIndividual extends React.Component {
             onChangeText={email => this.setState({ email })}
             value={this.state.email}
             keyboardType={'email-address'}
+            textContentType='emailAddress'
           />
         </View>
 
@@ -92,8 +105,10 @@ export default class SignUpIndividual extends React.Component {
             autoCorrect={false}
             onChangeText={password => this.setState({ password })}
             value={this.state.password}
+            textContentType='newPassword'
           />
         </View>
+
 
         <TouchableOpacity style={styles.signUpBtn} onPress={this.handleSignUp}>
           <Text style={styles.signUpText}>SIGN UP</Text>
@@ -102,8 +117,7 @@ export default class SignUpIndividual extends React.Component {
         <TouchableOpacity onPress={() => this.props.navigation.navigate('Login')}>
           <Text style={styles.loginText}>Already have an account? Login here</Text>
         </TouchableOpacity>
-
-      </View>
+        </KeyboardAwareScrollView>
     )
   }
 }

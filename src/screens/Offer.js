@@ -112,7 +112,7 @@ export default class Offer extends React.PureComponent {
     return (
       <View>
         <Text style={styles.categoryText}>{this.state.category.toUpperCase()}</Text>
-        <Text style={styles.priceText}>{this.state.name}</Text>
+        <Text onPress={() => { console.log(this.state.uid), this.props.navigation.navigate('UserProfile', { uid: this.state.uid }) }} style={styles.priceText}>{this.state.name}</Text>
         <View style={{ flexDirection: 'row', marginVertical: 5, alignContent: 'center' }}>
           <Image style={styles.authorProfile} source={require('../icons/exampleOfferImg.jpeg')} />
           <Text style={styles.authorText}>{this.state.author}</Text>

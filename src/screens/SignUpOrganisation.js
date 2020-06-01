@@ -3,9 +3,14 @@ import { StyleSheet, Text, TextInput, View, Image, TouchableOpacity } from 'reac
 import firebase from 'firebase'
 import { AsyncStorage } from "react-native"
 import { db } from '../config'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 export default class SignUpOrganisation extends React.Component {
   state = { email: '', password: '', name: '', errorMessage: null }
+
+  componentDidMount = () => {
+    AsyncStorage.setItem('profileSetUp', JSON.stringify('not set up'))
+  }
 
   handleSignUp = () => {
     firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password)
@@ -17,10 +22,9 @@ export default class SignUpOrganisation extends React.Component {
           userCredentials.user.updateProfile({
             displayName: this.state.name
           }).then((s) => {
-            AsyncStorage.setItem('userStatus', JSON.stringify('logged in'))
             console.log('handleSignUp')
             console.log(userCredentials.user)
-            this.props.navigation.navigate('stackNavigator');
+            this.props.navigation.navigate('SetupProfileOrganisation');
           })
         }
       })
@@ -37,7 +41,12 @@ export default class SignUpOrganisation extends React.Component {
 
   render() {
     return (
-      <View style={styles.container}>
+      <KeyboardAwareScrollView
+          style={{ backgroundColor: 'white' }}
+          resetScrollToCoords={{ x: 0, y: 0 }}
+          contentContainerStyle={styles.container}
+          scrollEnabled={false}
+        > 
         <Image style={{ width: 192, height: 160 }} source={require('../icons/signup.png')} />
         <Text style={styles.logo}>Sign up</Text>
         {this.state.errorMessage &&
@@ -104,7 +113,7 @@ export default class SignUpOrganisation extends React.Component {
         </TouchableOpacity>
 
 
-      </View>
+      </KeyboardAwareScrollView>
     )
   }
 }

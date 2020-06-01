@@ -11,15 +11,26 @@ export default class Loading extends React.Component{
     let mounted = true;
     if(mounted){
       firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-          console.log(user)
-          console.log('logged in')
-          AsyncStorage.setItem('userStatus', JSON.stringify('logged in'))
-          this.setState({ userStatus: 'logged in' })
-        } else {
-          console.log('not logged in')
-          AsyncStorage.setItem('userStatus', JSON.stringify('not logged in'))
-          this.setState({userStatus: 'not logged in'})
+        try {
+          AsyncStorage.getItem('profileSetUp').then(data => {
+            if(data != 'set up') {
+              AsyncStorage.setItem('userStatus', JSON.stringify('not logged in'))
+              this.setState({userStatus: 'not logged in'})
+            }
+            else if (user) {
+              console.log(user)
+              console.log('logged in')
+              AsyncStorage.setItem('userStatus', JSON.stringify('logged in'))
+              this.setState({ userStatus: 'logged in' })
+            } else {
+              console.log('not logged in')
+              AsyncStorage.setItem('userStatus', JSON.stringify('not logged in'))
+              this.setState({userStatus: 'not logged in'})
+            }    
+          });
+        }
+        catch(err){
+          console.log('Failed to load')
         }
       });
       try {

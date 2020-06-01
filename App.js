@@ -11,10 +11,12 @@ import Home from './src/screens/Home';
 import Following from './src/screens/Following';
 import Add from './src/screens/Add';
 import Groups from './src/screens/Groups';
-import Profile from './src/screens/Profile';
+import MyProfile from './src/screens/MyProfile';
 import Loading from './src/screens/Loading';
 import SignUpIndividual from './src/screens/SignUpIndividual';
 import SignUpOrganisation from './src/screens/SignUpOrganisation';
+import SetupProfileIndividual from './src/screens/SetupProfileIndividual'
+import SetupProfileOrganisation from './src/screens/SetupProfileOrganisation'
 import Login from './src/screens/Login';
 import Offer from './src/screens/Offer';  
 import SearchResults from './src/screens/SearchResults'
@@ -23,6 +25,7 @@ import LocationSelector from './src/screens/LocationSelector'
 import SortSelector from './src/screens/SortSelector'
 import Categories from './src/screens/Categories'
 import ChatScreen from './src/screens/ChatScreen'
+import UserProfile from './src/screens/UserProfile'
 
 import React, { Component } from 'react';
 
@@ -64,8 +67,8 @@ const MainTabs = createBottomTabNavigator(
         )
       }
     },
-    Profile: {
-      screen: Profile,
+    MyProfile: {
+      screen: MyProfile,
       navigationOptions: {
         tabBarLabel: "PROFILE",
         tabBarIcon: ({ tintColor }) => (
@@ -104,7 +107,8 @@ const MainTabs = createBottomTabNavigator(
           navigationOptions: {
             headerShown: false,
             headerBackTitle: 'Back',
-            animationEnabled: false
+            animationEnabled: false,
+            gestureEnabled: false
           },
         },
         SignUpOrganisation: {
@@ -112,7 +116,26 @@ const MainTabs = createBottomTabNavigator(
           navigationOptions: {
             headerShown: false,
             headerBackTitle: 'Back',
-            animationEnabled: false
+            animationEnabled: false,
+            gestureEnabled: false
+          }
+        },
+        SetupProfileIndividual: {
+          screen: SetupProfileIndividual,
+          navigationOptions: {
+            headerShown: false,
+            headerBackTitle: 'Back',
+            animationEnabled: false,
+            gestureEnabled: false
+          }
+        },
+        SetupProfileOrganisation: {
+          screen: SetupProfileOrganisation,
+          navigationOptions: {
+            headerShown: false,
+            headerBackTitle: 'Back',
+            animationEnabled: false,
+            gestureEnabled: false
           }
         },
         Login: {
@@ -120,7 +143,8 @@ const MainTabs = createBottomTabNavigator(
           navigationOptions: {
             headerShown: false,
             headerBackTitle: 'Back',
-            animationEnabled: false
+            animationEnabled: false,
+            gestureEnabled: false
           }
         },
         MainTabs: {
@@ -181,6 +205,13 @@ const MainTabs = createBottomTabNavigator(
             headerShown: false,
             headerBackTitle: 'Back'
           }
+        },
+        UserProfile: {
+          screen: UserProfile,
+            navigationOptions: {
+              headerShown: false,
+              headerBackTitle: 'Back'
+            }
         }
       },
       { initialRouteName: "Loading"}
