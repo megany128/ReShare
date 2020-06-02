@@ -4,7 +4,6 @@ import { Header } from 'react-native-elements'
 import Icon from "react-native-vector-icons/SimpleLineIcons";
 import Icon2 from "react-native-vector-icons/MaterialCommunityIcons"
 import Menu, { MenuItem, MenuDivider } from 'react-native-material-menu';
-
 import firebase from 'firebase'
 require('firebase/firestore')
 require("firebase/functions");
@@ -112,10 +111,10 @@ export default class Offer extends React.PureComponent {
     return (
       <View>
         <Text style={styles.categoryText}>{this.state.category.toUpperCase()}</Text>
-        <Text onPress={() => { console.log(this.state.uid), this.props.navigation.navigate('UserProfile', { uid: this.state.uid }) }} style={styles.priceText}>{this.state.name}</Text>
+        <Text style={styles.priceText}>{this.state.name}</Text>
         <View style={{ flexDirection: 'row', marginVertical: 5, alignContent: 'center' }}>
           <Image style={styles.authorProfile} source={require('../icons/exampleOfferImg.jpeg')} />
-          <Text style={styles.authorText}>{this.state.author}</Text>
+          <Text onPress={() => { this.props.navigation.navigate('UserProfile', { uid: this.state.uid }) }}style={styles.authorText}>{this.state.author}</Text>
         </View>
         <Text style={styles.descriptionText}>{this.state.time}</Text>
       </View>
