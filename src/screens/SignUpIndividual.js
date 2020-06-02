@@ -41,6 +41,9 @@ export default class SignUpIndividual extends React.Component {
       category: '',
       following: ''
     })
+    db.ref('users/' + uid + '/following/sample').set({
+      uid: 'uid'
+    })
   };
 
   render() {

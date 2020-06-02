@@ -35,7 +35,14 @@ export default class SignUpOrganisation extends React.Component {
     console.log('adding user to db')
     db.ref('users/' + uid).set({
       name: name,
-      type: 'organisation'
+      type: 'organisation',
+      bio: '',
+      phoneNumber: '',
+      category: '',
+      following: ''
+    })
+    db.ref('users/' + uid + '/following/sample').set({
+      uid: 'uid'
     })
   };
 

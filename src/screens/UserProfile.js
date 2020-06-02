@@ -48,33 +48,39 @@ export default class UserProfile extends React.Component {
             ref.once("value")
                 .then((snapshot) => {
                     const name = snapshot.child("name").val();
-                    console.log(name)
+                    console.log('name: ' + name)
                     this.setState({ name: name })
 
                     const type = snapshot.child("type").val();
-                    console.log(type)
+                    console.log('type of account: ' + type)
                     this.setState({ type: type })
 
                     const category = snapshot.child("category").val();
-                    console.log(category)
+                    console.log('category: ' + category)
                     this.setState({ category: category })
 
                     const bio = snapshot.child("bio").val();
-                    console.log(bio)
+                    console.log('bio: ' + bio)
                     if (bio) this.setState({ bio: bio })
                     else this.setState({ bio: 'This user has no biography' })
-
-                    const myFollowers = snapshot.child("following").val()
-                    console.log(myFollowers)
-                    if (this.checkIfFollowing) {
-                        this.setState({ followed: "followed" })
-                        console.log('followed')
-                    }
-                    else {
-                        this.setState({ followed: "not following" })
-                        console.log('not following')
-                    }
                 });
+                
+            db.ref('/users/' + uid + '/following').on('value', snapshot => {
+                let data = snapshot.val();  
+                let myFollowers = Object.values(data);
+                console.log('my followers: ' + myFollowers)
+                
+                if (myFollowers && this.checkIfFollowing(myFollowers, uid)) {
+                    this.setState({ followed: "followed" })
+                    console.log('followed')
+                }
+                else {
+                    this.setState({ followed: "not following" })
+                    console.log('not following')
+                }
+                
+
+            });
         }
         return () => mounted = false;
 
@@ -96,6 +102,7 @@ export default class UserProfile extends React.Component {
     }
 
     renderHeader = () => {
+        const uid = this.state.uid
         return (
             <View style={{ flex: 1, backgroundColor: 'white' }}>
                 <SafeAreaView style={[this.state.type === 'individual' ? styles.individualProfile : styles.organisationProfile, { flexDirection: 'column', height: 250 }]}>
@@ -115,13 +122,13 @@ export default class UserProfile extends React.Component {
                             />
 
                             {this.state.followed === "followed" ? (
-                                <TouchableOpacity onPress={() => this.unfollowUser()} style={[styles.followBtn, { backgroundColor: '#2C2061', borderColor: '#2C2061', width: 120 }]}>
+                                <TouchableOpacity onPress={() => this.unfollowUser(uid)} style={[styles.followBtn, { backgroundColor: '#2C2061', borderColor: '#2C2061', width: 120 }]}>
                                     <Text style={{ color: "white", textTransform: 'uppercase' }}>
                                         ✓ FOLLOWED
                                     </Text>
                                 </TouchableOpacity>
                             ) : (
-                                    <TouchableOpacity onPress={() => this.followUser()} style={[styles.followBtn, { borderColor: '#2C2061', width: 100 }]}>
+                                    <TouchableOpacity onPress={() => this.followUser(uid)} style={[styles.followBtn, { borderColor: '#2C2061', width: 100 }]}>
                                         <Text style={{ color: '#2C2061' }}>
                                             + FOLLOW
                                     </Text>
@@ -150,28 +157,27 @@ export default class UserProfile extends React.Component {
         )
     }
 
-    followUser = () => {
+    followUser = (uid) => {
         this.setState({ followed: "followed" })
-        db.ref('users/' + firebase.auth().currentUser.uid + '/following').push
-        db.ref('users/' + firebase.auth().currentUser.uid + '/following').push({
-            uid: this.state.uid
+        db.ref('users/' + firebase.auth().currentUser.uid + '/following/' + uid).set({
+            uid: uid
         })
     }
 
-    unfollowUser = () => {
+    unfollowUser = (uid) => {
         this.setState({ followed: "not followed" })
-        db.ref('users/' + firebase.auth().currentUser.uid + '/following').set({
-            uid: null
-        })
+        db.ref('users/' + firebase.auth().currentUser.uid + '/following/' + uid).remove()
     }
 
-    checkIfFollowing = (arr) => {
-        for (const i = 0; i < arr.length; i ++) {
-            if (arr[i].uid === this.state.uid) {
+    // Standard linear search algorithm
+    checkIfFollowing = (arr, uid) => {
+        for (var i = 0; i < arr.length; i++) {
+            console.log(arr[i].uid)
+            if (arr[i].uid === uid) {
                 return true
             }
-            return false
         }
+        return false
     }
 
     render() {
