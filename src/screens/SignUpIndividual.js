@@ -37,7 +37,9 @@ export default class SignUpIndividual extends React.Component {
       name: name,
       type: 'individual',
       bio: '',
-      phoneNumber: ''
+      phoneNumber: '',
+      category: '',
+      following: ''
     })
   };
 

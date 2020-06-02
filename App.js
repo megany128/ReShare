@@ -216,9 +216,6 @@ const stackNavigator = createStackNavigator(
       }
     }
   },
-  {
-    transitionConfig: (nav) => handleCustomTransition(nav)
-  },
   { initialRouteName: "Loading" }
 )
 

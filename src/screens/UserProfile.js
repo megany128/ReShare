@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Button, Text, StyleSheet, Image, SafeAreaView, Dimensions, FlatList, TouchableHighlight } from 'react-native';
+import { View, Button, Text, StyleSheet, Image, SafeAreaView, Dimensions, FlatList, TouchableHighlight, TouchableOpacity } from 'react-native';
 import firebase from 'firebase'
 import { AsyncStorage } from "react-native"
 import _ from 'lodash';
@@ -12,6 +12,8 @@ import OfferComponent from "../components/OfferComponent"
 import Icon from "react-native-vector-icons/Ionicons";
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
+// TO DO: GET FOLLOWED OR NOT FROM DATABASE WHEN COMPONENT DID MOUNT
+
 export default class UserProfile extends React.Component {
     state = {
         uid: '',
@@ -20,7 +22,8 @@ export default class UserProfile extends React.Component {
         offers: [],
         fullData: [],
         bio: '',
-        category: ''
+        category: '',
+        followed: ''
     }
     componentDidMount() {
         let mounted = true;
@@ -60,6 +63,17 @@ export default class UserProfile extends React.Component {
                     console.log(bio)
                     if (bio) this.setState({ bio: bio })
                     else this.setState({ bio: 'This user has no biography' })
+
+                    const myFollowers = snapshot.child("following").val()
+                    console.log(myFollowers)
+                    if (this.checkIfFollowing) {
+                        this.setState({ followed: "followed" })
+                        console.log('followed')
+                    }
+                    else {
+                        this.setState({ followed: "not following" })
+                        console.log('not following')
+                    }
                 });
         }
         return () => mounted = false;
@@ -84,19 +98,36 @@ export default class UserProfile extends React.Component {
     renderHeader = () => {
         return (
             <View style={{ flex: 1, backgroundColor: 'white' }}>
-                <SafeAreaView style={[this.state.type === 'individual' ? styles.individualProfile : styles.organisationProfile, {flexDirection: 'column'}]}>
+                <SafeAreaView style={[this.state.type === 'individual' ? styles.individualProfile : styles.organisationProfile, { flexDirection: 'column', height: 250 }]}>
                     <TouchableWithoutFeedback onPress={() => this.props.navigation.goBack()} hitSlop={{ top: 20, bottom: 20, left: 50, right: 50 }}>
                         <Icon
                             name="ios-arrow-back"
                             color='white'
                             size={30}
-                            style={{transform: [{ rotate: '270deg' }], alignSelf: 'center' }}
+                            style={{ transform: [{ rotate: '270deg' }], alignSelf: 'center' }}
                         />
                     </TouchableWithoutFeedback>
-                    <View style={{flexDirection: 'row'}}>
-                        <Image
-                            source={require('../icons/exampleOfferImg.jpeg')}
-                            style={[styles.inProfile, { width: 125, height: 125, borderRadius: 400 / 2 }]} />
+                    <View style={{ flexDirection: 'row' }}>
+                        <View style={{ flexDirection: 'column' }}>
+                            <Image
+                                source={require('../icons/exampleOfferImg.jpeg')}
+                                style={[styles.inProfile, { width: 125, height: 125, borderRadius: 400 / 2 }]}
+                            />
+
+                            {this.state.followed === "followed" ? (
+                                <TouchableOpacity onPress={() => this.unfollowUser()} style={[styles.followBtn, { backgroundColor: '#2C2061', borderColor: '#2C2061', width: 120 }]}>
+                                    <Text style={{ color: "white", textTransform: 'uppercase' }}>
+                                        ✓ FOLLOWED
+                                    </Text>
+                                </TouchableOpacity>
+                            ) : (
+                                    <TouchableOpacity onPress={() => this.followUser()} style={[styles.followBtn, { borderColor: '#2C2061', width: 100 }]}>
+                                        <Text style={{ color: '#2C2061' }}>
+                                            + FOLLOW
+                                    </Text>
+                                    </TouchableOpacity>
+                                )}
+                        </View>
                         <View style={{ flexDirection: 'column' }}>
                             <Text style={styles.displayName}>{this.state.name}</Text>
                             {this.state.type === 'organisation' ?
@@ -107,7 +138,7 @@ export default class UserProfile extends React.Component {
                             <View style={{ flexDirection: 'row', width: Dimensions.get('window').width * 0.55 }}>
                                 <Text style={styles.biography}>{this.state.bio}</Text>
                             </View>
-                            <Text style={{ position: 'absolute', right: 0, bottom: -10, textAlign: 'right', color: 'white', fontSize: 18 }}>{this.state.type.toUpperCase()}</Text>
+                            <Text style={{ position: 'absolute', right: 0, bottom: 0, textAlign: 'right', color: 'white', fontSize: 18 }}>{this.state.type.toUpperCase()}</Text>
                         </View>
                     </View>
                 </SafeAreaView>
@@ -117,6 +148,30 @@ export default class UserProfile extends React.Component {
                 </View>
             </View>
         )
+    }
+
+    followUser = () => {
+        this.setState({ followed: "followed" })
+        db.ref('users/' + firebase.auth().currentUser.uid + '/following').push
+        db.ref('users/' + firebase.auth().currentUser.uid + '/following').push({
+            uid: this.state.uid
+        })
+    }
+
+    unfollowUser = () => {
+        this.setState({ followed: "not followed" })
+        db.ref('users/' + firebase.auth().currentUser.uid + '/following').set({
+            uid: null
+        })
+    }
+
+    checkIfFollowing = (arr) => {
+        for (const i = 0; i < arr.length; i ++) {
+            if (arr[i].uid === this.state.uid) {
+                return true
+            }
+            return false
+        }
     }
 
     render() {
@@ -180,5 +235,17 @@ const styles = StyleSheet.create({
         color: 'white',
         flex: 1,
         flexWrap: 'wrap'
-    }
+    },
+    followBtn:
+    {
+        borderRadius: 25,
+        height: 40,
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: 0,
+        borderWidth: 1,
+        height: 28,
+        alignSelf: 'center',
+        marginTop: 10
+    },
 });
