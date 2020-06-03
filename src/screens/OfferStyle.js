@@ -7,7 +7,7 @@ export default {
     width: 25,
     height: 25,
     borderRadius: 50,
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   authorText: {
     marginBottom: 4,
@@ -33,7 +33,7 @@ export default {
     flexDirection: 'column',
   },
   coverContainer: {
-    position: 'relative'
+    position: 'relative',
   },
   coverImage: {
     height: Dimensions.get('window').width * (3 / 4),
@@ -49,7 +49,7 @@ export default {
     marginBottom: 55,
   },
   productRow: {
-    margin: 25,
+    marginHorizontal: 25,
   },
   mainviewStyle: {
     flex: 1,
@@ -114,10 +114,8 @@ export default {
   },
   detailText: {
     marginBottom: 4,
-    color: 'black',
-    fontSize: 22,
-    fontWeight: '600',
-    letterSpacing: 0.5,
+    color: 'grey',
+    fontSize: 20
   },
   subDetailText: {
     color: 'black',

@@ -37,7 +37,7 @@ export default class Offer extends React.PureComponent {
       .then((snapshot) => {
         const name = snapshot.child("name").val();
         console.log(name)
-        this.setState({author: name})
+        this.setState({ author: name })
       });
   }
 
@@ -102,19 +102,32 @@ export default class Offer extends React.PureComponent {
   renderDetail = () => {
     return (
       <View>
+        <Text style={{ color: 'black', fontSize: 22, fontWeight: 'bold' }}>Description</Text>
         <Text style={styles.detailText}>{this.state.description}</Text>
+
+        <Text style={{ color: 'black', fontSize: 22, fontWeight: 'bold', marginTop: 10 }}>Location</Text>
+        <Text style={styles.detailText}>{this.state.location}</Text>
       </View>
     )
   }
 
+  navigateProfile = (uid) => {
+    if (uid === firebase.auth().currentUser.uid) {
+      this.props.navigation.navigate('MyProfile')
+    }
+    else {
+      this.props.navigation.navigate('UserProfile', { uid: this.state.uid })
+    }
+  }
+
   renderDescription = () => {
     return (
-      <View>
+      <View style ={{marginVertical: 25}}>
         <Text style={styles.categoryText}>{this.state.category.toUpperCase()}</Text>
         <Text style={styles.priceText}>{this.state.name}</Text>
         <View style={{ flexDirection: 'row', marginVertical: 5, alignContent: 'center' }}>
           <Image style={styles.authorProfile} source={require('../icons/exampleOfferImg.jpeg')} />
-          <Text onPress={() => { this.props.navigation.navigate('UserProfile', { uid: this.state.uid }) }}style={styles.authorText}>{this.state.author}</Text>
+          <Text onPress={() => { this.navigateProfile(this.state.uid) }} style={styles.authorText}>{this.state.author}</Text>
         </View>
         <Text style={styles.descriptionText}>{this.state.time}</Text>
       </View>

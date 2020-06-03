@@ -65,12 +65,12 @@ export default class UserProfile extends React.Component {
                     else this.setState({ bio: 'This user has no biography' })
                 });
                 
-            db.ref('/users/' + uid + '/following').on('value', snapshot => {
+            db.ref('/users/' + firebase.auth().currentUser.uid + '/following').on('value', snapshot => {
                 let data = snapshot.val();  
-                let myFollowers = Object.values(data);
-                console.log('my followers: ' + myFollowers)
+                let following = Object.values(data);
+                console.log('following: ' + following)
                 
-                if (myFollowers && this.checkIfFollowing(myFollowers, uid)) {
+                if (following && this.checkIfFollowing(following, uid)) {
                     this.setState({ followed: "followed" })
                     console.log('followed')
                 }

@@ -35,3 +35,13 @@ export const byAuthor = ({author}, authorID) => {
     }
     return false;
 };
+
+export const byFollowed = ({author}, following) => {
+    for (var i = 0; i < following.length; i++) {
+        if (author === following[i].uid)
+        {
+            return true;
+        }
+    }
+    return false;
+};
