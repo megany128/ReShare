@@ -12,8 +12,6 @@ import OfferComponent from "../components/OfferComponent"
 import Icon from "react-native-vector-icons/Ionicons";
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
-// TO DO: GET FOLLOWED OR NOT FROM DATABASE WHEN COMPONENT DID MOUNT
-
 export default class UserProfile extends React.Component {
     state = {
         uid: '',
@@ -31,17 +29,20 @@ export default class UserProfile extends React.Component {
             const { navigation } = this.props;
             const uid = navigation.getParam('uid', 'uid');
             this.setState({ uid })
+            console.log('uid: ' + uid)
 
             offersRef.on('value', snapshot => {
                 let data = snapshot.val();
-                let fullData = Object.values(data);
-                this.setState({ fullData })
+                if (data) {
+                    let fullData = Object.values(data);
+                    this.setState({ fullData })
 
-                let offers = _.filter(fullData, offer => {
-                    return byAuthor(offer, uid)
-                });
+                    let offers = _.filter(fullData, offer => {
+                        return byAuthor(offer, uid)
+                    });
 
-                this.setState({ offers });
+                    this.setState({ offers });
+                }
             });
 
             var ref = firebase.database().ref("users/" + uid);
@@ -64,12 +65,12 @@ export default class UserProfile extends React.Component {
                     if (bio) this.setState({ bio: bio })
                     else this.setState({ bio: 'This user has no biography' })
                 });
-                
+
             db.ref('/users/' + firebase.auth().currentUser.uid + '/following').on('value', snapshot => {
-                let data = snapshot.val();  
+                let data = snapshot.val();
                 let following = Object.values(data);
                 console.log('following: ' + following)
-                
+
                 if (following && this.checkIfFollowing(following, uid)) {
                     this.setState({ followed: "followed" })
                     console.log('followed')
@@ -78,7 +79,7 @@ export default class UserProfile extends React.Component {
                     this.setState({ followed: "not following" })
                     console.log('not following')
                 }
-                
+
 
             });
         }
@@ -145,7 +146,7 @@ export default class UserProfile extends React.Component {
                             <View style={{ flexDirection: 'row', width: Dimensions.get('window').width * 0.55 }}>
                                 <Text style={styles.biography}>{this.state.bio}</Text>
                             </View>
-                            <Text style={{ position: 'absolute', right: 0, bottom: 0, textAlign: 'right', color: 'white', fontSize: 18 }}>{this.state.type.toUpperCase()}</Text>
+                            <Text style={{ position: 'absolute', right: 0, bottom: 0, textAlign: 'right', color: 'white', fontSize: 18, textTransform: 'uppercase' }}>{this.state.type}</Text>
                         </View>
                     </View>
                 </SafeAreaView>
@@ -158,26 +159,38 @@ export default class UserProfile extends React.Component {
     }
 
     followUser = (uid) => {
-        this.setState({ followed: "followed" })
-        db.ref('users/' + firebase.auth().currentUser.uid + '/following/' + uid).set({
-            uid: uid
-        })
+        let mounted = true;
+        if (mounted) {
+            this.setState({ followed: "followed" })
+            db.ref('users/' + firebase.auth().currentUser.uid + '/following/' + uid).set({
+                uid: uid
+            })
+        }
+        return () => mounted = false;
     }
 
     unfollowUser = (uid) => {
-        this.setState({ followed: "not followed" })
-        db.ref('users/' + firebase.auth().currentUser.uid + '/following/' + uid).remove()
+        let mounted = true;
+        if (mounted) {
+            this.setState({ followed: "not followed" })
+            db.ref('users/' + firebase.auth().currentUser.uid + '/following/' + uid).remove()
+        }
+        return () => mounted = false;
     }
 
     // Standard linear search algorithm
     checkIfFollowing = (arr, uid) => {
-        for (var i = 0; i < arr.length; i++) {
-            console.log(arr[i].uid)
-            if (arr[i].uid === uid) {
-                return true
+        let mounted = true;
+        if (mounted) {
+            for (var i = 0; i < arr.length; i++) {
+                console.log(arr[i].uid)
+                if (arr[i].uid === uid) {
+                    return true
+                }
             }
+            return false
         }
-        return false
+        return () => mounted = false;
     }
 
     render() {

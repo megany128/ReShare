@@ -45,3 +45,5 @@ export const byFollowed = ({author}, following) => {
     }
     return false;
 };
+
+//function to only return chats where the chat ID contains current UID

@@ -4,6 +4,7 @@ import { Header } from 'react-native-elements'
 import Icon from "react-native-vector-icons/SimpleLineIcons";
 import Icon2 from "react-native-vector-icons/MaterialCommunityIcons"
 import Menu, { MenuItem, MenuDivider } from 'react-native-material-menu';
+import { GiftedChat, Send } from 'react-native-gifted-chat';
 import firebase from 'firebase'
 require('firebase/firestore')
 require("firebase/functions");
@@ -21,6 +22,7 @@ export default class Offer extends React.PureComponent {
   state = {
     name: '',
     author: '',
+    key: '',
     description: '',
     category: '',
     expiry: '',
@@ -69,6 +71,10 @@ export default class Offer extends React.PureComponent {
       this.setState({ uid })
       this.getAuthor(uid)
 
+      const key = navigation.getParam('key', 'no key')
+      this.setState({ key })
+      console.log(JSON.stringify(key))
+
       const description = navigation.getParam('description', 'no description');
       this.setState({ description })
 
@@ -88,9 +94,6 @@ export default class Offer extends React.PureComponent {
       const ref = firebase.storage().ref('offers/' + { imageID }.imageID + '.jpg');
       const url = await ref.getDownloadURL();
       this.setState({ url })
-
-      const key = navigation.getParam('key', 'no key')
-      this.setState({ key })
     }
     return () => mounted = false;
   }
@@ -122,7 +125,7 @@ export default class Offer extends React.PureComponent {
 
   renderDescription = () => {
     return (
-      <View style ={{marginVertical: 25}}>
+      <View style={{ marginVertical: 25 }}>
         <Text style={styles.categoryText}>{this.state.category.toUpperCase()}</Text>
         <Text style={styles.priceText}>{this.state.name}</Text>
         <View style={{ flexDirection: 'row', marginVertical: 5, alignContent: 'center' }}>
@@ -154,26 +157,45 @@ export default class Offer extends React.PureComponent {
                 hitSlop={{ top: 20, bottom: 20, left: 50, right: 50 }}
               />
               <View style={{ marginTop: 40, marginLeft: 360, position: "absolute" }}>
-                <Menu
-                  ref={this.setMenuRef}
-                  button={<Icon
-                    name="options"
-                    color='#D3D3D3'
-                    size={25}
-                    onPress={this.showMenu}
-                  />}
-                >
-                  <MenuItem onPress={this.hideMenu}>Edit</MenuItem>
-                  <MenuItem onPress={this.hideMenu}>Delete</MenuItem>
-                  <MenuDivider />
-                  <MenuItem onPress={this.reportOffer}>Report offer</MenuItem>
-                </Menu>
+                {this.state.uid === firebase.auth().currentUser.uid ? (
+                  <Menu
+                    ref={this.setMenuRef}
+                    button={<Icon
+                      name="options"
+                      color='#D3D3D3'
+                      size={25}
+                      onPress={this.showMenu}
+                    />}
+                  >
+                    <MenuItem onPress={this.hideMenu}>Edit</MenuItem>
+                    <MenuItem onPress={this.deleteOffer}>Delete</MenuItem>
+                  </Menu>
+                ) : (
+                    <Menu
+                      ref={this.setMenuRef}
+                      button={<Icon
+                        name="options"
+                        color='#D3D3D3'
+                        size={25}
+                        onPress={this.showMenu}
+                      />}
+                    >
+                      <MenuItem onPress={this.reportOffer}>Report offer</MenuItem>
+                    </Menu>
+                  )}
               </View>
             </View>
           </ImageBackground>
         </View>
       </View>
     )
+  }
+
+  deleteOffer = () => {
+    console.log('deleting offer')
+    offersRef.child(this.state.key).remove();
+    this.hideMenu()
+    this.props.navigation.navigate('Home')
   }
 
   reportOffer = () => {
@@ -189,6 +211,49 @@ export default class Offer extends React.PureComponent {
     );
   }
 
+  contactDonor = (uid, author, key, name) => {
+    const chatID = this.chatID(uid)
+
+    firebase.database().ref('messages').child(chatID).update({
+      latestMessage: {
+        _id: key,
+        text: 'Requesting ' + name,
+        createdAt: new Date().getTime(),
+        system: true
+      }
+    })
+
+    firebase.database().ref('messages/' + chatID).once('value', function (snapshot) {
+      if (!snapshot.hasChild(key)) {
+        firebase.database().ref('messages').child(chatID + '/' + key).set({
+          _id: key,
+          createdAt: new Date().getTime(),
+          text: 'Requesting ' + name,
+          system: true
+        })
+      }
+    })
+
+
+    this.props.navigation.navigate('MessageScreen', {
+      id: uid,
+      author: author
+    })
+  }
+
+  chatID = (id) => {
+    const chatterID = firebase.auth().currentUser.uid;
+    const chateeID = id;
+    const chatIDpre = [];
+    chatIDpre.push(chatterID);
+    chatIDpre.push(chateeID);
+    chatIDpre.sort();
+
+
+    console.log(chatIDpre.join('_'))
+    return chatIDpre.join('_');
+  };
+
   render() {
     return (
       <View style={styles.mainviewStyle}>
@@ -202,12 +267,7 @@ export default class Offer extends React.PureComponent {
           <View style={styles.productRow}>{this.renderDetail()}</View>
         </ScrollView>
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.buttonFooter} onPress={() => {
-            this.props.navigation.navigate('ChatScreen', {
-              id: this.state.uid,
-              author: this.state.author
-            })
-          }}>
+          <TouchableOpacity style={styles.buttonFooter} onPress={() => this.contactDonor(this.state.uid, this.state.author, this.state.key, this.state.name)}>
             <Text style={styles.textFooter}>CONTACT DONOR</Text>
           </TouchableOpacity>
         </View>

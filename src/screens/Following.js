@@ -9,25 +9,28 @@ let offersRef = db.ref('/offers');
 import { byFollowed } from "/Users/meganyap/Desktop/ReShare/ReShare/index.js"
 import OfferComponent from "../components/OfferComponent"
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { NavigationEvents } from 'react-navigation';
 
 class Following extends Component {
 
   state = {
     offers: [],
     fullData: [],
-    following: []
+    following: [],
+    isFetching: false
   };
 
-  componentDidMount() {
-    let mounted = true;
-    if (mounted) {
-      db.ref('/users/' + firebase.auth().currentUser.uid + '/following').on('value', snapshot => {
-        let data = snapshot.val();
+  getData = () => {
+    db.ref('/users/' + firebase.auth().currentUser.uid + '/following').on('value', snapshot => {
+      let data = snapshot.val();
+      if (data) {
         const following = Object.values(data);
         console.log('following: ' + following)
+      }
 
-        offersRef.on('value', snapshot => {
-          let data = snapshot.val();
+      offersRef.on('value', snapshot => {
+        let data = snapshot.val();
+        if (data) {
           let fullData = Object.values(data);
           this.setState({ fullData })
 
@@ -37,8 +40,16 @@ class Following extends Component {
           console.log(offers)
 
           this.setState({ offers });
-        })
-      });
+          this.setState({ isFetching: false })
+        }
+      })
+    });
+  }
+
+  componentDidMount() {
+    let mounted = true;
+    if (mounted) {
+      this.getData()
     }
     return () => mounted = false;
 
@@ -48,39 +59,69 @@ class Following extends Component {
     const { currentUser } = this.state
     return (
       <View
-           style={{
-             flexDirection: "row",
-             backgroundColor: "white",
-             marginTop: 60,
-             marginBottom: 10
-           }}
-         >
-          <Text style={{marginHorizontal: 20, fontWeight: 'bold', fontSize: 25 }}>Following</Text>
-         </View>
+        style={{
+          flexDirection: "row",
+          backgroundColor: "white",
+          marginTop: 60,
+          marginBottom: 10
+        }}
+      >
+        <Text style={{ marginHorizontal: 20, fontWeight: 'bold', fontSize: 25 }}>Following</Text>
+      </View>
     )
+  }
+
+  pressRow(item) {
+    this.props.navigation.navigate('Offer', {
+      name: item.name,
+      uid: item.author,
+      description: item.description,
+      category: item.category,
+      expiry: item.expiry,
+      location: item.location,
+      time: item.time,
+      imageID: item.id
+    })
   }
 
   render() {
     return (
       <View style={{ flex: 1, backgroundColor: 'white' }}>
-        <FlatList
-          numColumns={2}
-          showsVerticalScrollIndicator={false}
-          pagingEnabled={true}
-          scrollEnabled={true}
-          scrollEventThrottle={16}
-          snapToAlignment="center"
-          data={this.state.offers}
-          renderItem={({ item }) => (
-            <TouchableHighlight style={{ marginHorizontal: 10 }} onPress={() => { this.pressRow(item) }}>
-              <OfferComponent
-                item={item}
-              />
-            </TouchableHighlight>
-          )}
-          keyExtractor={(item, index) => index.toString()}
-          ListHeaderComponent={this.renderHeader}
-        />
+        <NavigationEvents onDidFocus={() => this.getData()} />
+        {this.state.offers[0] != null ?
+          <FlatList
+            numColumns={2}
+            showsVerticalScrollIndicator={false}
+            pagingEnabled={true}
+            scrollEnabled={true}
+            scrollEventThrottle={16}
+            snapToAlignment="center"
+            data={this.state.offers}
+            renderItem={({ item }) => (
+              <TouchableHighlight style={{ marginHorizontal: 10 }} onPress={() => { this.pressRow(item) }}>
+                <OfferComponent
+                  item={item}
+                />
+              </TouchableHighlight>
+            )}
+            keyExtractor={(item, index) => index.toString()}
+            ListHeaderComponent={this.renderHeader}
+            onRefresh={() => this.onRefresh()}
+            refreshing={this.state.isFetching}
+          />
+          :
+          <View
+            style={{
+              flexDirection: "column",
+              backgroundColor: "white",
+              marginTop: 60,
+              marginBottom: 10
+            }}
+          >
+            <Text style={{ marginHorizontal: 20, fontWeight: 'bold', fontSize: 25 }}>Following</Text>
+            <Text style={{ marginTop: 20, marginLeft: 20 }}>Follow other users to see their offers!</Text>
+          </View>
+        }
       </View>
     );
   }

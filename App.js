@@ -10,7 +10,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Home from './src/screens/Home';
 import Following from './src/screens/Following';
 import Add from './src/screens/Add';
-import Groups from './src/screens/Groups';
+import Messages from './src/screens/Messages';
 import MyProfile from './src/screens/MyProfile';
 import Loading from './src/screens/Loading';
 import SignUpIndividual from './src/screens/SignUpIndividual';
@@ -24,8 +24,8 @@ import CategorySelector from './src/screens/CategorySelector'
 import LocationSelector from './src/screens/LocationSelector'
 import SortSelector from './src/screens/SortSelector'
 import Categories from './src/screens/Categories'
-import ChatScreen from './src/screens/ChatScreen'
 import UserProfile from './src/screens/UserProfile'
+import MessageScreen from './src/screens/MessageScreen'
 
 import React, { Component } from 'react';
 
@@ -55,15 +55,16 @@ const MainTabs = createBottomTabNavigator(
         tabBarLabel: () => null,
         tabBarIcon: () => (
           <Ion name="ios-add-circle" color="white" size={50} />
-        )
+        ),
+        ...TransitionPresets.ModalSlideFromBottomIOS
       }
     },
-    Groups: {
-      screen: Groups,
+    Messages: {
+      screen: Messages,
       navigationOptions: {
-        tabBarLabel: "GROUPS",
+        tabBarLabel: "MESSAGES",
         tabBarIcon: ({ tintColor }) => (
-          <MaterialIcons name="group-work" color={tintColor} size={30} />
+          <MaterialIcons name="message" color={tintColor} size={30} />
         )
       }
     },
@@ -200,19 +201,19 @@ const stackNavigator = createStackNavigator(
         headerBackTitle: 'Back'
       }
     },
-    ChatScreen: {
-      screen: ChatScreen,
-      navigationOptions: {
-        headerShown: false,
-        headerBackTitle: 'Back'
-      }
-    },
     UserProfile: {
       screen: UserProfile,
       navigationOptions: {
         headerShown: false,
         headerBackTitle: 'Back',
         ...TransitionPresets.ModalSlideFromBottomIOS,
+      }
+    },
+    MessageScreen: {
+      screen: MessageScreen,
+      navigationOptions: {
+        headerShown: false,
+        headerBackTitle: 'Back',
       }
     }
   },

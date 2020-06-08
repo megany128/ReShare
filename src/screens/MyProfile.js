@@ -26,15 +26,16 @@ export default class Profile extends React.Component {
         let currentUser = firebase.auth().currentUser
         this.setState({ currentUser })
         let data = snapshot.val();
-        let fullData = Object.values(data);
-        this.setState({ fullData })
+        if (data) {
+          let fullData = Object.values(data);
+          this.setState({ fullData })
 
-        let offers = _.filter(fullData, offer => {
-          return byAuthor(offer, currentUser.uid)
-        });
+          let offers = _.filter(fullData, offer => {
+            return byAuthor(offer, currentUser.uid)
+          });
 
-        this.setState({ offers });
-
+          this.setState({ offers });
+        }
         this.getData(currentUser.uid)
       });
     }
@@ -89,7 +90,7 @@ export default class Profile extends React.Component {
             {this.state.type === 'organisation' ?
               <Text style={{ color: 'white', marginVertical: 5 }}>Category: {this.state.category}</Text>
               :
-              <Text> </Text>
+              <View></View>
             }
             <View style={{ flexDirection: 'row', width: Dimensions.get('window').width * 0.55 }}>
               <Text style={styles.biography}>{this.state.bio}</Text>
