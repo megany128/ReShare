@@ -23,8 +23,9 @@ class Following extends Component {
   getData = () => {
     db.ref('/users/' + firebase.auth().currentUser.uid + '/following').on('value', snapshot => {
       let data = snapshot.val();
+      var following;
       if (data) {
-        const following = Object.values(data);
+        following = Object.values(data);
         console.log('following: ' + following)
       }
 
@@ -82,6 +83,10 @@ class Following extends Component {
       time: item.time,
       imageID: item.id
     })
+  }
+
+  onRefresh() {
+    this.setState({ isFetching: true, }, () => { this.getData(); });
   }
 
   render() {

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import { Divider } from "react-native-elements";
 import { db } from '../config';
 import { List } from 'react-native-paper';
 import firebase from 'firebase'
@@ -19,14 +20,12 @@ class Messages extends Component {
     if (mounted) {
       db.ref('messages').on('value', snapshot => {
         let data = snapshot.val();
-        let chats = Object.values(data);
-        // TO DO: GET ONLY CHATS WITH USER ID IN ID
-        console.log('key: ' + this.getKey(0))
+        let chats = new Array();
+        chats = Object.values(data);
 
         const sortedChats = chats.sort(function (a, b) { return a.latestMessage.createdAt - b.latestMessage.createdAt });
-        console.log(sortedChats)
         this.setState({ chats: sortedChats })
-        this.setState({isFetching: false})
+        this.setState({ isFetching: false })
       });
     }
     return () => mounted = false;
@@ -72,7 +71,9 @@ class Messages extends Component {
     return (
       <View style={styles.container}>
         <NavigationEvents onDidFocus={() => this.getData()} />
+        <Text style={{ marginHorizontal: 20, marginTop: 20, fontWeight: 'bold', fontSize: 25 }}>Messages</Text>
         <FlatList
+          style={{ marginHorizontal: 5 }}
           data={this.state.chats}
           keyExtractor={(item, index) => this.getUID(index)}
           ItemSeparatorComponent={() => <Divider />}
@@ -80,14 +81,18 @@ class Messages extends Component {
             <TouchableOpacity
               onPress={() => this.props.navigation.navigate('MessageScreen', { id: this.getUID(index), name: this.getUserInfo(this.getUID(index)) })}
             >
-              <List.Item
+              {this.getKey(index).includes(firebase.auth().currentUser.uid) ?
+              (<List.Item
                 title={this.getUserInfo(this.getUID(index))}
                 description={item.latestMessage.text}
                 titleNumberOfLines={1}
                 titleStyle={styles.listTitle}
                 descriptionStyle={styles.listDescription}
                 descriptionNumberOfLines={1}
-              />
+              />) : (
+                <Text></Text>
+              )
+             }
 
             </TouchableOpacity>
           )}

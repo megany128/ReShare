@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Button, Text, StyleSheet, Image, SafeAreaView, Dimensions, FlatList, TouchableHighlight } from 'react-native';
+import { View, Button, Text, StyleSheet, Image, SafeAreaView, Dimensions, FlatList, TouchableHighlight, TouchableOpacity } from 'react-native';
 import firebase from 'firebase'
 import { AsyncStorage } from "react-native"
 import _ from 'lodash';
@@ -86,7 +86,19 @@ export default class Profile extends React.Component {
             source={require('../icons/exampleOfferImg.jpeg')}
             style={[styles.inProfile, { width: 125, height: 125, borderRadius: 400 / 2 }]} />
           <View style={{ flexDirection: 'column' }}>
-            <Text style={styles.displayName}>{currentUser && currentUser.displayName}</Text>
+            <View style={{ flexDirection: 'row' }}>
+              <TouchableOpacity
+                style={{position: 'absolute', right: 0, top: 10}}
+                onPress={() => {
+                  AsyncStorage.setItem('userStatus', JSON.stringify('not logged in'))
+                  firebase.auth().signOut();
+                  this.props.navigation.navigate('Loading');
+                }}
+              >
+                <Text style={{color: 'white'}}>Sign out</Text>
+              </TouchableOpacity>
+              <Text style={styles.displayName}>{currentUser && currentUser.displayName}</Text>
+            </View>
             {this.state.type === 'organisation' ?
               <Text style={{ color: 'white', marginVertical: 5 }}>Category: {this.state.category}</Text>
               :
@@ -102,19 +114,6 @@ export default class Profile extends React.Component {
           <Text style={{ marginHorizontal: 20, marginTop: 15, fontWeight: 'bold', fontSize: 25 }}>My Listings</Text>
         </View>
       </View>
-    )
-  }
-
-  renderFooter = () => {
-    return (
-      <Button
-        title="Sign out"
-        onPress={() => {
-          AsyncStorage.setItem('userStatus', JSON.stringify('not logged in'))
-          firebase.auth().signOut();
-          this.props.navigation.navigate('Loading');
-        }}
-      />
     )
   }
 
@@ -139,7 +138,6 @@ export default class Profile extends React.Component {
           )}
           keyExtractor={(item, index) => index.toString()}
           ListHeaderComponent={this.renderHeader}
-          ListFooterComponent={this.renderFooter}
         />
       </View>
     );

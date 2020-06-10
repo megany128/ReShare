@@ -78,7 +78,7 @@ class Home extends Component {
           </View>
         </View>
         <View style={{ flexDirection: 'row' }}>
-          <Text style={{ marginHorizontal: 5, marginTop: 15, fontWeight: 'bold', fontSize: 25 }}>Categories</Text>
+          <Text style={{ marginTop: 15, fontWeight: 'bold', fontSize: 25, marginLeft: 10 }}>Categories</Text>
           <Text style={{ marginHorizontal: 5, marginTop: 30, fontSize: 12, textAlign: 'right', width: 230, color: 'grey' }} onPress={() => { this.props.navigation.navigate('Categories') }}>See all ></Text>
         </View>
         <View>
@@ -251,7 +251,7 @@ class Home extends Component {
       <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
         <NavigationEvents onDidFocus={() => this.getData()} />
         {this.state.offers[0] ? (
-          <View style={[styles.flex, styles.column, styles.recommended]}>
+          <View style={{ marginLeft: 20 }, [styles.flex, styles.column]}>
             <View style={[styles.column]}>
               <FlatList
                 numColumns={2}
@@ -311,8 +311,8 @@ class Home extends Component {
                   </View>
                 </View>
               </View>
-              <View style={{ flexDirection: 'row' }}>
-                <Text style={{ marginHorizontal: 5, marginTop: 15, fontWeight: 'bold', fontSize: 25 }}>Categories</Text>
+              <View style={{ flexDirection: 'row', marginLeft: 20 }}>
+                <Text style={{ marginHorizontal: 10, marginTop: 15, fontWeight: 'bold', fontSize: 25 }}>Categories</Text>
                 <Text style={{ marginHorizontal: 5, marginTop: 30, fontSize: 12, textAlign: 'right', width: 230, color: 'grey' }} onPress={() => { this.props.navigation.navigate('Categories') }}>See all ></Text>
               </View>
               <View>
@@ -342,7 +342,7 @@ class Home extends Component {
                 </ScrollView>
               </View>
               <Text style={{ marginHorizontal: 10, marginTop: 15, fontWeight: 'bold', fontSize: 25 }}>Recent Offers</Text>
-              <Text style={{ marginVertical: 20, marginHorizontal: 10 }}>No offers</Text>
+              <Text style={{ marginVertical: 20, marginHorizontal: 20 }}>No offers</Text>
             </SafeAreaView>
           )}
       </SafeAreaView>
@@ -364,7 +364,8 @@ const styles = StyleSheet.create({
   },
   categoryStyle:
   {
-    marginVertical: 10
+    marginVertical: 10,
+    marginHorizontal: 5
   },
   listItemStyle:
   {

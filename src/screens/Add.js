@@ -1,24 +1,37 @@
 import React, { Component, useState } from 'react';
-import {View,
+import {
+  View,
   Text,
   TouchableHighlight,
+  TouchableOpacity,
   StyleSheet,
   TextInput,
-  Alert} from 'react-native';
-import RNPickerSelect, { defaultStyles } from 'react-native-picker-select';
+  Alert,
+  Button
+} from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
 import { db } from '../config';
 import firebase from 'firebase'
 import 'firebase/storage';
 import uuid from 'react-native-uuid';
 import { AsyncStorage } from "react-native"
-
 import ResourceImagePicker from "../components/ResourceImagePicker"
 import * as Permissions from 'expo-permissions';
 import Constants from 'expo-constants';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import moment from 'moment'
+import { useFonts } from '@use-expo/font';
 
 let offersRef = db.ref('/offers');
 
 class Add extends Component {
+  constructor() {
+    super()
+    this.state = {
+      isVisible: false
+    }
+  }
   state = {
     name: '',
     author: firebase.auth().currentUser.uid,
@@ -27,14 +40,42 @@ class Add extends Component {
     description: '',
     location: '',
     expiry: '',
-    tags:'',
+    tags: '',
     imageUri: ''
   };
+  showPicker = () => {
+    this.setState({ isVisible: true })
+  };
+
+  hidePicker = () => {
+    this.setState({
+      isVisible: false,
+      expiry: ''
+    })
+  }
+
+  handlePicker = (date) => {
+    this.setState({
+      isVisible: false,
+      expiry: moment(date).format('MMMM Do YYYY')
+    })
+  }
 
   componentDidMount() {
     this.getPermissionAsync();
-
+    this.refreshData()
     var user = firebase.auth().currentUser;
+  }
+
+  refreshData = () => {
+    this.setState({ name: '',
+    category: '',
+    description: '',
+    location: '',
+    expiry: '',
+    tags: '',
+    imageUri: ''
+  })
   }
 
   getPermissionAsync = async () => {
@@ -47,10 +88,13 @@ class Add extends Component {
     }
   }
 
-  addOffer(name, author, category, time, description, location, expiry, id){
-    db.ref('/offers').push({
-      name, author, category, time, description, location, expiry, id
+  addOffer(name, category, description, location, expiry, id) {
+    offersRef.push({
+      name, author: firebase.auth().currentUser.uid, category, time: firebase.database.ServerValue.TIMESTAMP, description, location, expiry, id
     });
+    this.setState({
+      name: '', category: '', description: '', location: '', expiry: '', id: ''
+    })
   };
 
   handleChange = e => {
@@ -63,163 +107,255 @@ class Add extends Component {
   setOfferImage = (uri) => {
     this.setState({ imageUri: uri.uri })
   }
-  
+
   handleSubmit = () => {
-    this.uriToBlob(this.state.imageUri).then((blob) => {
-      return this.uploadToFirebase(blob);
-    });
+    if (!(/\S/.test(this.state.imageUri))) {
+      Alert.alert(
+        "Please add an image for your offer"
+      );
+    }
+
+    else if (!(/\S/.test(this.state.name)) || !(/\S/.test(this.state.category)) || !(/\S/.test(this.state.description)) || !(/\S/.test(this.state.location))) {
+      Alert.alert(
+        "Please fill in all the fields before submitting"
+      );
+    }
+    else {
+      this.uriToBlob(this.state.imageUri).then((blob) => {
+        return this.uploadToFirebase(blob);
+      });
+    }
   };
 
   uriToBlob = (uri) => {
     console.log('uri: ' + uri)
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
       try {
-          var xhr = new XMLHttpRequest();
-          xhr.open("GET", uri);
-          xhr.responseType = "blob";
-          xhr.onerror = function() {reject("Network error.")};
-          xhr.onload = function() {
-              if (xhr.status === 200) {resolve(xhr.response)}
-              else {reject("Loading error:" + xhr.statusText)}
-          };
-          xhr.send();
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", uri);
+        xhr.responseType = "blob";
+        xhr.onerror = function () { reject("Network error.") };
+        xhr.onload = function () {
+          if (xhr.status === 200) { resolve(xhr.response) }
+          else { reject("Loading error:" + xhr.statusText) }
+        };
+        xhr.send();
       }
-      catch(err) {reject(err.message)}
+      catch (err) { reject(err.message) }
     })
   }
 
   uploadToFirebase = (blob) => {
     console.log('uploading to firebase')
-    return new Promise((resolve, reject)=>{
+    return new Promise((resolve, reject) => {
       var storageRef = firebase.storage().ref();
       const imageUuid = uuid.v1();
       console.log('uuid: ' + imageUuid)
-      this.addOffer(this.state.name, this.state.author, this.state.category, this.state.time, this.state.description, this.state.location, this.state.expiry, imageUuid);
+      this.addOffer(this.state.name, this.state.category, this.state.description, this.state.location, this.state.expiry, imageUuid);
       Alert.alert('Offer saved successfully');
       storageRef.child('offers/' + imageUuid + '.jpg').put(blob, {
         contentType: 'image/jpeg'
-      }).then((snapshot)=>{
+      }).then((snapshot) => {
         blob.close();
         resolve(snapshot);
-      }).catch((error)=>{
+      }).catch((error) => {
         reject(error);
       });
     });
   }
 
   render() {
-    // TO DO: In description, prompt users to specify if they are fine with users taking partial amounts or if it has to be all
     return (
-      <View style={styles.main}>
+      <KeyboardAwareScrollView
+        style={{ backgroundColor: 'white', padding: 30 }}
+        resetScrollToCoords={{ x: 0, y: 0 }}
+        contentContainerStyle={styles.container}
+        scrollEnabled={true}
+      >
         <Text style={styles.title}>Add Offer</Text>
-        <ResourceImagePicker image={this.state.image} onImagePicked={this.setOfferImage}/>
-        <TextInput style={styles.itemInput} placeholder = "Offer title" onChangeText={name => this.setState({ name })} />
-        <RNPickerSelect
-            style={pickerSelectStyles.inputIOS}
-            //placeholder = "Select category"
-            onValueChange={(category) => this.setState({ category })}
-            items={[
-                { label: "Appliances", value: "Appliances" },
-                { label: "Babies and Kids", value: "Babies and Kids" },
-                { label: "Books", value: "Books" },
-                { label: "Clothing", value: "Clothing" },
-                { label: "Electronics", value: "Electronics" },
-                { label: "Food", value: "Food" },
-                { label: "Furniture", value: "Furniture" },
-                { label: "Health", value: "Health" },
-                { label: "Stationery", value: "Stationery" },
-                { label: "Hobbies", value: "Hobbies" },
-                { label: "Sports", value: "Sports" },
-                { label: "Toys and Games", value: "Toys and Games" },  
-            ]}
+        <ResourceImagePicker image={this.state.image} onImagePicked={this.setOfferImage} />
+        <Text style={styles.heading}>Offer Title</Text>
+        <View style={[styles.inputView]}>
+          <TextInput
+            style={styles.inputText}
+            placeholder="Name your offer"
+            autoCorrect={true}
+            onChangeText={name => this.setState({ name })}
+            value={this.state.name}
+          />
+        </View>
+        <Text style={styles.heading}>Select a Category</Text>
+        <DropDownPicker
+          zIndex={5000}
+          items={[
+            { label: 'Appliances' },
+            { label: 'Babies and Kids' },
+            { label: 'Books' },
+            { label: 'Clothing' },
+            { label: 'Electronics' },
+            { label: 'Food' },
+            { label: 'Furniture' },
+            { label: 'Health' },
+            { label: 'Stationery' },
+            { label: 'Hobbies' },
+            { label: 'Sports' },
+            { label: 'Toys and Games' }
+          ]}
+          defaultNull={this.state.category === ''}
+          placeholder="Select a category"
+          containerStyle={styles.dropdown}
+          style={{ backgroundColor: 'white', borderTopLeftRadius: 25, borderTopRightRadius: 25, borderBottomLeftRadius: 25, borderBottomRightRadius: 25, padding: 20 }}
+          dropDownStyle={{ backgroundColor: 'white', borderBottomLeftRadius: 25, borderBottomRightRadius: 25 }}
+          placeholderStyle={{ color: "#c9c9c9", position: 'absolute', left: 0 }}
+          labelStyle={{ color: "#c9c9c9", position: 'relative', marginLeft: 10 }}
+          activeLabelStyle={{ color: "#c9c9c9", position: 'relative', marginLeft: 10 }}
+          onChangeItem={(item) => {
+            this.setState({
+              category: item.label
+            });
+          }}
+          dropDownMaxHeight={240}
         />
-        <TextInput style={styles.itemInput} placeholder = "Description" onChangeText={description => this.setState({ description })} />
-        <RNPickerSelect
-            style={pickerSelectStyles.inputIOS}
-            //placeholder = "Select category"
-            onValueChange={(location) => this.setState({ location })}
-            items={[
-              {label: 'Johor', value: 'Johor'},
-              {label: 'Kedah', value: 'Kedah'},
-              {label: 'Kelantan', value: 'Kelantan'},
-              {label: 'KL/Selangor', value: 'KL/Selangor'},
-              {label: 'Melaka', value: 'Melaka'},
-              {label: 'Negeri Sembilan', value: 'Negeri Sembilan'},
-              {label: 'Pahang', value: 'Pahang'},
-              {label: 'Penang', value: 'Penang'},
-              {label: 'Perak', value: 'Perak'},
-              {label: 'Perlis', value: 'Perlis'},
-              {label: 'Sabah', value: 'Sabah'},
-              {label: 'Sarawak', value: 'Sarawak'},
-              {label: 'Terengganu', value: 'Terengganu'},
-            ]}
+
+        <Text style={styles.heading}>Select a Location</Text>
+        <DropDownPicker
+          zIndex={4000}
+          items={[
+            { label: 'Johor' },
+            { label: 'Kedah' },
+            { label: 'Kelantan' },
+            { label: 'KL/Selangor' },
+            { label: 'Melaka' },
+            { label: 'Negeri Sembilan' },
+            { label: 'Pahang' },
+            { label: 'Penang' },
+            { label: 'Perak' },
+            { label: 'Perlis' },
+            { label: 'Sabah' },
+            { label: 'Sarawak' },
+            { label: 'Terengganu' }
+          ]}
+          defaultNull={this.state.location === ''}
+          placeholder="Select a state"
+          containerStyle={styles.dropdown}
+          style={{ backgroundColor: 'white', borderTopLeftRadius: 25, borderTopRightRadius: 25, borderBottomLeftRadius: 25, borderBottomRightRadius: 25 }}
+          dropDownStyle={{ backgroundColor: 'white', borderBottomLeftRadius: 25, borderBottomRightRadius: 25 }}
+          placeholderStyle={{ color: "#c9c9c9", position: 'absolute', left: 0 }}
+          labelStyle={{ color: "#c9c9c9", position: 'relative', marginLeft: 10 }}
+          activeLabelStyle={{ color: "#c9c9c9", position: 'relative', marginLeft: 10 }}
+          onChangeItem={(item) => {
+            this.setState({
+              location: item.label
+            });
+          }}
+          dropDownMaxHeight={240}
         />
-        <TextInput style={styles.itemInput} placeholder = "Offer expiry date" onChangeText={expiry => this.setState({ expiry })} />
-        <TextInput style={styles.itemInput} placeholder = "Tags" onChangeText={tags => this.setState({ tags })} />
+
+        <Text style={styles.heading}>Offer Description</Text>
+        <TextInput
+          style={styles.description}
+          placeholder="Describe your offer - what does it look like? What are its dimensions? How much is available? Can the recipient take a partial amount or does it have to be all?"
+          onChangeText={description => this.setState({ description })}
+          multiline={true}
+          maxLength={150}
+          clearButtonMode='while-editing'
+          value={this.state.description}
+        />
+        <View style={{ flexDirection: 'row' }}>
+          <Text style={styles.heading}>Offer Expiry Date (optional)</Text>
+          <TouchableOpacity style={{ position: 'absolute', right: 0 }} onPress={this.showPicker}><Text style={{ color: "#CFC8EF" }}>Choose Date</Text></TouchableOpacity>
+        </View>
+
+        <Text style={{ marginLeft: 10, color: "#2C2061" }}>{this.state.expiry}</Text>
+
+        <DateTimePickerModal
+          isVisible={this.state.isVisible}
+          mode={"date"}
+          onConfirm={this.handlePicker}
+          onCancel={this.hidePicker}
+          datePickerModeAndroid={'spinner'}
+        />
         <TouchableHighlight
           style={styles.button}
           underlayColor="black"
           onPress={this.handleSubmit}
         >
-          <Text style={styles.buttonText}>Add</Text>
+          <Text style={styles.buttonText}>ADD</Text>
         </TouchableHighlight>
-      </View>
+        <View style={{ height: 50 }}></View>
+      </KeyboardAwareScrollView>
     );
   }
 }
 export default Add;
 
 const styles = StyleSheet.create({
-  main: {
-    flex: 1, 
-    padding: 30,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    backgroundColor: 'white'
-  },
   title: {
-    marginBottom: 20,
+    marginHorizontal: 10,
     fontSize: 25,
-    textAlign: 'center'
+    marginTop: 30,
+    fontWeight: 'bold'
   },
-  itemInput: {
+  inputView: {
+    width: "100%",
+    backgroundColor: "white",
+    borderRadius: 25,
+    height: 60,
+    marginBottom: 20,
+    justifyContent: "center",
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2, },
+    shadowOpacity: 0.2,
+    shadowRadius: 3.84
+  },
+  description: {
+    width: "100%",
+    backgroundColor: "white",
+    borderRadius: 25,
+    height: 150,
+    marginBottom: 20,
+    padding: 20,
+    paddingTop: 20,
+    justifyContent: "flex-start",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2, },
+    shadowOpacity: 0.2,
+    shadowRadius: 3.84,
+    alignSelf: 'center',
+  },
+  inputText: {
+    color: "black",
+  },
+  dropdown: {
     height: 50,
-    padding: 4,
-    marginRight: 5,
-    fontSize: 23,
-    borderWidth: 1,
-    borderColor: 'grey',
-    borderRadius: 8,
-    color: 'grey'
-  },
-  buttonText: {
-    fontSize: 18,
-    color: 'white',
-    alignSelf: 'center'
+    width: '100%',
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2, },
+    shadowOpacity: 0.2,
+    shadowRadius: 3.84
   },
   button: {
-    height: 45,
-    flexDirection: 'row',
-    backgroundColor: 'grey',
-    borderColor: 'grey',
-    borderWidth: 1,
-    borderRadius: 8,
+    width: "50%",
+    backgroundColor: "#2C2061",
+    borderRadius: 25,
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 20,
+    alignSelf: 'center',
+  },
+  buttonText: {
+    color: "#CFC8EF",
+    fontWeight: 'bold',
+    fontSize: 17
+  },
+  heading: {
+    marginLeft: 10,
     marginBottom: 10,
-    marginTop: 10,
-    alignSelf: 'stretch',
-    justifyContent: 'center'
+    fontSize: 15,
+    color: '#4b4c4c',
+    fontWeight: 'bold'
   }
 });
-
-const pickerSelectStyles = StyleSheet.create({
-  inputIOS: {
-    fontSize: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: 4,
-    color: 'black',
-    paddingRight: 30, // to ensure the text is never behind the icon
-  },
-  });

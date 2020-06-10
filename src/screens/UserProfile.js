@@ -115,6 +115,7 @@ export default class UserProfile extends React.Component {
                             style={{ transform: [{ rotate: '270deg' }], alignSelf: 'center' }}
                         />
                     </TouchableWithoutFeedback>
+
                     <View style={{ flexDirection: 'row' }}>
                         <View style={{ flexDirection: 'column' }}>
                             <Image
@@ -137,7 +138,16 @@ export default class UserProfile extends React.Component {
                                 )}
                         </View>
                         <View style={{ flexDirection: 'column' }}>
-                            <Text style={styles.displayName}>{this.state.name}</Text>
+                            <View style={{flexDirection: 'row'}}>
+                                <Text style={styles.displayName}>{this.state.name}</Text>
+                                <Icon
+                                    name="ios-chatboxes"
+                                    color='white'
+                                    size={25}
+                                    style={{ position: 'absolute', right: 0, top: 10 }}
+                                    onPress={() => this.props.navigation.navigate('MessageScreen', {id: this.state.uid, name: this.state.name})}
+                                />
+                            </View>
                             {this.state.type === 'organisation' ?
                                 <Text style={{ color: 'white', marginVertical: 5 }}>Category: {this.state.category}</Text>
                                 :

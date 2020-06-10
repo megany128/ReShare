@@ -26,6 +26,7 @@ import SortSelector from './src/screens/SortSelector'
 import Categories from './src/screens/Categories'
 import UserProfile from './src/screens/UserProfile'
 import MessageScreen from './src/screens/MessageScreen'
+import Edit from './src/screens/Edit'
 
 import React, { Component } from 'react';
 
@@ -35,6 +36,7 @@ const MainTabs = createBottomTabNavigator(
       screen: Home,
       navigationOptions: {
         tabBarLabel: "HOME",
+        labelStyle: {fontFamily: 'gilroy'},
         tabBarIcon: ({ tintColor }) => (
           <FontAwesome name="home" color={tintColor} size={24} />
         ),
@@ -44,6 +46,7 @@ const MainTabs = createBottomTabNavigator(
       screen: Following,
       navigationOptions: {
         tabBarLabel: "FOLLOWING",
+        labelStyle: {fontFamily: 'gilroy'},
         tabBarIcon: ({ tintColor }) => (
           <FontAwesome5 name="user-friends" color={tintColor} size={24} />
         )
@@ -63,6 +66,7 @@ const MainTabs = createBottomTabNavigator(
       screen: Messages,
       navigationOptions: {
         tabBarLabel: "MESSAGES",
+        labelStyle: {fontFamily: 'gilroy'},
         tabBarIcon: ({ tintColor }) => (
           <MaterialIcons name="message" color={tintColor} size={30} />
         )
@@ -71,6 +75,7 @@ const MainTabs = createBottomTabNavigator(
     MyProfile: {
       screen: MyProfile,
       navigationOptions: {
+        labelStyle: {fontFamily: 'gilroy'},
         tabBarLabel: "PROFILE",
         tabBarIcon: ({ tintColor }) => (
           <FontAwesome5 name="user-circle" color={tintColor} size={24} />
@@ -215,10 +220,17 @@ const stackNavigator = createStackNavigator(
         headerShown: false,
         headerBackTitle: 'Back',
       }
+    },
+    Edit: {
+      screen: Edit,
+        navigationOptions: {
+          headerShown: false,
+          headerBackTitle: 'Back',
+        }
     }
   },
   { initialRouteName: "Loading" }
 )
 
-const App = createAppContainer(stackNavigator);
-export default App;
+const AppContainer = createAppContainer(stackNavigator);
+export default AppContainer

@@ -13,6 +13,7 @@ import { db } from '../config';
 let offersRef = db.ref('/offers');
 
 import OfferStyle from './OfferStyle'
+import { NavigationEvents } from 'react-navigation';
 
 const styles = StyleSheet.create({ ...OfferStyle })
 
@@ -30,7 +31,8 @@ export default class Offer extends React.PureComponent {
     time: '',
     url: '../icons/exampleOfferImg.jpeg',
     key: '',
-    uid: ''
+    uid: '',
+    organisation: false
   }
 
   getAuthor = (uid) => {
@@ -40,6 +42,18 @@ export default class Offer extends React.PureComponent {
         const name = snapshot.child("name").val();
         console.log(name)
         this.setState({ author: name })
+      });
+  }
+
+  getType = (uid) => {
+    var ref = firebase.database().ref("users/" + uid);
+    ref.once("value")
+      .then((snapshot) => {
+        const type = snapshot.child("type").val();
+        console.log(type)
+        if (type === "organisation") {
+          this.setState({ organisation: true })
+        }
       });
   }
 
@@ -60,6 +74,10 @@ export default class Offer extends React.PureComponent {
   };
 
   async componentDidMount() {
+    this.getData()
+  }
+
+  getData = async () => {
     let mounted = true;
     if (mounted) {
       const { navigation } = this.props;
@@ -94,6 +112,12 @@ export default class Offer extends React.PureComponent {
       const ref = firebase.storage().ref('offers/' + { imageID }.imageID + '.jpg');
       const url = await ref.getDownloadURL();
       this.setState({ url })
+
+      this.renderDescription()
+      this.renderImage()
+      this.renderDetail()
+
+      this.getType(firebase.auth().currentUser.uid)
     }
     return () => mounted = false;
   }
@@ -167,7 +191,7 @@ export default class Offer extends React.PureComponent {
                       onPress={this.showMenu}
                     />}
                   >
-                    <MenuItem onPress={this.hideMenu}>Edit</MenuItem>
+                    <MenuItem onPress={this.editOffer}>Edit</MenuItem>
                     <MenuItem onPress={this.deleteOffer}>Delete</MenuItem>
                   </Menu>
                 ) : (
@@ -191,6 +215,22 @@ export default class Offer extends React.PureComponent {
     )
   }
 
+  editOffer = () => {
+    console.log('editing offer')
+    this.props.navigation.navigate('Edit', {
+      name: this.state.name,
+      key: this.state.key,
+      uid: this.state.uid,
+      description: this.state.description,
+      category: this.state.category,
+      expiry: this.state.expiry,
+      location: this.state.location,
+      time: this.state.time,
+      imageID: this.props.navigation.getParam('imageID', 'no imageID')
+    })
+    this.hideMenu()
+  }
+
   deleteOffer = () => {
     console.log('deleting offer')
     offersRef.child(this.state.key).remove();
@@ -199,6 +239,9 @@ export default class Offer extends React.PureComponent {
   }
 
   reportOffer = () => {
+    db.ref('/reported').push({
+      key: this.state.key
+    });
     Alert.alert(
       "Offer Reported",
       "The report has been sent and will be processed shortly. Thank you for contributing.",
@@ -257,6 +300,7 @@ export default class Offer extends React.PureComponent {
   render() {
     return (
       <View style={styles.mainviewStyle}>
+        <NavigationEvents onDidFocus={() => this.getData()} />
         <ScrollView style={styles.scroll}>
           <View style={[styles.container, this.props.containerStyle]}>
             <View style={styles.cardContainer}>
@@ -266,11 +310,16 @@ export default class Offer extends React.PureComponent {
           <View style={styles.productRow}>{this.renderDescription()}</View>
           <View style={styles.productRow}>{this.renderDetail()}</View>
         </ScrollView>
-        <View style={styles.footer}>
-          <TouchableOpacity style={styles.buttonFooter} onPress={() => this.contactDonor(this.state.uid, this.state.author, this.state.key, this.state.name)}>
-            <Text style={styles.textFooter}>CONTACT DONOR</Text>
-          </TouchableOpacity>
-        </View>
+
+        {this.state.organisation ? (
+          <View style={styles.footer}>
+            <TouchableOpacity style={styles.buttonFooter} onPress={() => this.contactDonor(this.state.uid, this.state.author, this.state.key, this.state.name)}>
+              <Text style={styles.textFooter}>CONTACT DONOR</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+            <Text style={{alignSelf: 'center', marginBottom: 20, fontSize: 16}}>Non-organisations cannot accept offers</Text>
+          )}
       </View>
     )
   }
