@@ -134,6 +134,15 @@ export default class Offer extends React.PureComponent {
 
         <Text style={{ color: 'black', fontSize: 22, fontWeight: 'bold', marginTop: 10 }}>Location</Text>
         <Text style={styles.detailText}>{this.state.location}</Text>
+
+        {this.state.expiry ? (
+          <View>
+            <Text style={{ color: 'black', fontSize: 22, fontWeight: 'bold', marginTop: 10 }}>Expiry Date</Text>
+            <Text style={styles.detailText}>{this.state.expiry}</Text>
+          </View>
+        ) : (
+            <Text></Text>
+          )}
       </View>
     )
   }
@@ -156,7 +165,7 @@ export default class Offer extends React.PureComponent {
           <Image style={styles.authorProfile} source={require('../icons/exampleOfferImg.jpeg')} />
           <Text onPress={() => { this.navigateProfile(this.state.uid) }} style={styles.authorText}>{this.state.author}</Text>
         </View>
-        <Text style={styles.descriptionText}>{this.state.time}</Text>
+        <Text style={styles.descriptionText}>{new Date(this.state.time).toLocaleDateString("en-MY")}</Text>
       </View>
     )
   }
@@ -318,7 +327,7 @@ export default class Offer extends React.PureComponent {
             </TouchableOpacity>
           </View>
         ) : (
-            <Text style={{alignSelf: 'center', marginBottom: 20, fontSize: 16}}>Non-organisations cannot accept offers</Text>
+            <Text style={{ alignSelf: 'center', fontSize: 16, position: 'absolute', bottom: 15 }}>Non-organisations cannot accept offers</Text>
           )}
       </View>
     )

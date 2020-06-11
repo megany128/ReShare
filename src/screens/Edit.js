@@ -285,7 +285,7 @@ class Edit extends Component {
                     placeholder="Describe your offer - what does it look like? What are its dimensions? How much is available? Can the recipient take a partial amount or does it have to be all?"
                     onChangeText={description => this.setState({ description })}
                     multiline={true}
-                    maxLength={150}
+                    maxLength={300}
                     clearButtonMode='while-editing'
                     value={this.state.description}
                 />
