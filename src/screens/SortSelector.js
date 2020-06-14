@@ -7,9 +7,7 @@ import { AsyncStorage } from "react-native"
 class SortSelector extends Component {
   state = {
     sorts: [
-      { title: 'Recent', key: 'Most recent' },
-      { title: 'Expiry', key: 'Expiry date: near to far' },
-      { title: 'Trusted', key: 'Most trusted users' }
+      { title: 'Recent', key: 'Most recent' }
     ],
     currentSort: ""
   };

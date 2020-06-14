@@ -80,7 +80,6 @@ class SearchResults extends Component {
         }
 
         // Gets the type of sort
-        // TO DO: Implement expiry sort
         try {
           AsyncStorage.getItem('sortState').then(data => {
             if (data) {

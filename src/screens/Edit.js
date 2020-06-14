@@ -20,6 +20,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from 'moment'
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { AsyncStorage } from "react-native"
 
 class Edit extends Component {
     constructor() {
@@ -70,9 +71,12 @@ class Edit extends Component {
         const name = navigation.getParam('name', 'no name');
         this.setState({ name })
 
+        const uid = navigation.getParam('uid', 'no uid')
+        this.setState({ uid })
+        console.log('uid:'+uid)
+
         const key = navigation.getParam('key', 'no key')
         this.setState({ key })
-        console.log('key: ' + JSON.stringify(key))
 
         const description = navigation.getParam('description', 'no description');
         this.setState({ description })
@@ -144,7 +148,6 @@ class Edit extends Component {
                 return this.uploadToFirebase(blob);
             });
         }
-        this.props.navigation.goBack()
     };
 
     // Converts the URI to a blob that can be stored in Firebase Storage
@@ -176,19 +179,34 @@ class Edit extends Component {
             const imageUuid = uuid.v1();
             console.log('uuid: ' + imageUuid)
 
-            // Edits the offer and updates the relevant values
-            this.editOffer(this.state.name, this.state.category, this.state.description, this.state.location, this.state.expiry, imageUuid);
-            Alert.alert('Offer saved successfully');
+            AsyncStorage.setItem('imageLoaded', 'not loaded')
 
             // Stores the blob as an image in Firebase Storage under the previously generated UUID
             storageRef.child('offers/' + imageUuid + '.jpg').put(blob, {
                 contentType: 'image/jpeg'
             }).then((snapshot) => {
+                AsyncStorage.setItem('imageLoaded', 'loaded')
                 blob.close();
                 resolve(snapshot);
             }).catch((error) => {
                 reject(error);
             });
+
+            // Edits the offer and updates the relevant values
+            this.editOffer(this.state.name, this.state.category, this.state.description, this.state.location, this.state.expiry, imageUuid);
+            Alert.alert('Offer saved successfully');
+
+            this.props.navigation.navigate('Offer', {
+                name: this.state.name,
+                key: this.state.key,
+                uid: this.state.uid,
+                description: this.state.description,
+                category: this.state.category,
+                expiry: this.state.expiry,
+                location: this.state.location,
+                time: this.state.time,
+                imageID: this.state.imageID
+            })
         });
     }
 

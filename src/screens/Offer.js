@@ -169,6 +169,7 @@ export default class Offer extends React.PureComponent {
         });
 
       const imageID = navigation.getParam('imageID', 'no imageID')
+      console.log('image: ' + imageID)
       AsyncStorage.getItem('imageLoaded').then(data => {
         if (data === 'loaded') {
           const ref = firebase.storage().ref('offers/' + { imageID }.imageID + '.jpg');
@@ -322,8 +323,8 @@ export default class Offer extends React.PureComponent {
     console.log('editing offer')
     this.props.navigation.navigate('Edit', {
       name: this.state.name,
-      key: this.state.key,
       uid: this.state.uid,
+      key: this.state.key,
       description: this.state.description,
       category: this.state.category,
       expiry: this.state.expiry,

@@ -161,7 +161,7 @@ export default class UserProfile extends React.Component {
                                 <Image
                                     source={{
                                         uri: this.state.url,
-                                      }}
+                                    }}
                                     style={[styles.inProfile, { width: 125, height: 125, borderRadius: 400 / 2 }]}
                                 />
 
@@ -242,14 +242,51 @@ export default class UserProfile extends React.Component {
     checkIfFollowing = (arr, uid) => {
         let mounted = true;
         if (mounted) {
-            for (var i = 0; i < arr.length; i++) {
-                if (arr[i].uid === uid) {
-                    return true
-                }
-            }
-            return false
+            arr = this.selectionSort(arr)
+            this.binarySearch(arr, uid)
         }
         return () => mounted = false;
+    }
+
+    binarySearch = (array, uid) => {
+        let startIndex = 0;
+        let endIndex = array.length - 1;
+        while (startIndex <= endIndex) {
+            let middleIndex = Math.floor((startIndex + endIndex) / 2);
+            if (uid === array[middleIndex]) {
+                return true
+            }
+            if (uid > array[middleIndex]) {
+                console.log("Searching the right side of Array")
+                startIndex = middleIndex + 1;
+            }
+            if (uid < array[middleIndex]) {
+                console.log("Searching the left side of array")
+                endIndex = middleIndex - 1;
+            }
+            else {
+                console.log("Not Found this loop iteration. Looping another iteration.")
+            }
+        }
+        return false
+    }
+
+    selectionSort = (arr) => {
+        let len = arr.length;
+        for (let i = 0; i < len; i++) {
+            let min = i;
+            for (let j = i + 1; j < len; j++) {
+                if (arr[min] > arr[j]) {
+                    min = j;
+                }
+            }
+            if (min !== i) {
+                let tmp = arr[i];
+                arr[i] = arr[min];
+                arr[min] = tmp;
+            }
+        }
+        return arr;
     }
 
     // Renders the offers by the specified user

@@ -65,7 +65,7 @@ class Home extends Component {
                 marginVertical: 10,
                 shadowOffset: { width: 0, height: 0 },
                 shadowColor: "black",
-                shadowOpacity: 0.2
+                shadowOpacity: 0.2,
               }}
             >
               <Icon name="ios-search" color="grey" size={20} style={{ marginRight: 10 }} />
@@ -82,7 +82,7 @@ class Home extends Component {
         </View>
         <View style={{ flexDirection: 'row' }}>
           <Text style={{ marginTop: 15, fontWeight: 'bold', fontSize: 25, marginLeft: 10 }}>Categories</Text>
-          <Text style={{ marginHorizontal: 5, marginTop: 30, fontSize: 12, textAlign: 'right', width: 230, color: 'grey' }} onPress={() => { this.props.navigation.navigate('Categories') }}>See all ></Text>
+          <Text style={{ marginHorizontal: 5, marginTop: 30, fontSize: 12, textAlign: 'right', width: 230, color: 'grey' }} onPress={() => { this.props.navigation.navigate('Categories') }}>See all </Text>
         </View>
         <View>
           <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
@@ -318,7 +318,7 @@ class Home extends Component {
               </View>
               <View style={{ flexDirection: 'row', marginLeft: 20 }}>
                 <Text style={{ marginHorizontal: 10, marginTop: 15, fontWeight: 'bold', fontSize: 25 }}>Categories</Text>
-                <Text style={{ marginHorizontal: 5, marginTop: 30, fontSize: 12, textAlign: 'right', width: 230, color: 'grey' }} onPress={() => { this.props.navigation.navigate('Categories') }}>See all ></Text>
+                <Text style={{ marginHorizontal: 5, marginTop: 30, fontSize: 12, textAlign: 'right', width: 230, color: 'grey' }} onPress={() => { this.props.navigation.navigate('Categories') }}>See all</Text>
               </View>
               <View>
                 <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>

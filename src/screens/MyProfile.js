@@ -18,23 +18,24 @@ export default class Profile extends React.Component {
     bio: '',
     type: '',
     category: '',
-    url: '../icons/exampleOfferImg.jpeg'
+    url: '../icons/exampleOfferImg.jpeg',
+    isFetching: false
   }
 
   // Gets the profile picture of the current user
   getProfilePicture = () => {
     db.ref('/users').child(firebase.auth().currentUser.uid).once("value")
-        .then((snapshot) => {
-          console.log(snapshot)
-          const imageID = snapshot.child('pfp').val();
-          
-          AsyncStorage.getItem('profileLoaded').then(data => {
-            if (data === 'loaded') {
-              const ref = firebase.storage().ref('profile/' + {imageID}.imageID + '.jpg');
-              this.getURL(ref)
-            }
-          })
-        });
+      .then((snapshot) => {
+        console.log(snapshot)
+        const imageID = snapshot.child('pfp').val();
+
+        AsyncStorage.getItem('profileLoaded').then(data => {
+          if (data === 'loaded') {
+            const ref = firebase.storage().ref('profile/' + { imageID }.imageID + '.jpg');
+            this.getURL(ref)
+          }
+        })
+      });
   }
 
   // Gets the URL of the image ref
@@ -46,31 +47,35 @@ export default class Profile extends React.Component {
   componentDidMount() {
     let mounted = true;
     if (mounted) {
-      AsyncStorage.setItem('profileLoaded', 'loaded')
-      offersRef.on('value', snapshot => {
-        let currentUser = firebase.auth().currentUser
-        this.setState({ currentUser })
-
-        // Gets all the offers from Firebase
-        let data = snapshot.val();
-        if (data) {
-          let fullData = Object.values(data);
-          this.setState({ fullData })
-
-          // Filters the offers and only returns those by the current user
-          let offers = _.filter(fullData, offer => {
-            return byAuthor(offer, currentUser.uid)
-          });
-          this.setState({ offers });
-        }
-        this.getProfilePicture()
-        this.getData(currentUser.uid)
-      });
+      this.getOffers()
+      this.getProfilePicture()
+      this.getData(firebase.auth().currentUser.uid)
     }
     return () => mounted = false;
 
   }
 
+  getOffers = () => {
+    AsyncStorage.setItem('profileLoaded', 'loaded')
+    offersRef.on('value', snapshot => {
+      let currentUser = firebase.auth().currentUser
+      this.setState({ currentUser })
+
+      // Gets all the offers from Firebase
+      let data = snapshot.val();
+      if (data) {
+        let fullData = Object.values(data);
+        this.setState({ fullData })
+
+        // Filters the offers and only returns those by the current user
+        let offers = _.filter(fullData, offer => {
+          return byAuthor(offer, currentUser.uid)
+        });
+        this.setState({ offers });
+      }
+      this.setState({ isFetching: false })
+    })
+  }
   // Gets the bio, type, and category of the user with the UID passed in
   getData = (uid) => {
     var ref = firebase.database().ref("users/" + uid);
@@ -86,6 +91,7 @@ export default class Profile extends React.Component {
         const category = snapshot.child("category").val();
         this.setState({ category: category })
       });
+    this.setState({ isFetching: false })
   }
 
   // Gets the key of the offer and passes it to the screen Offer along with the other characteristics of the offer
@@ -106,20 +112,25 @@ export default class Profile extends React.Component {
   }
 
   getKey = (index) => {
+    let key = ''
     offersRef.on('value', snapshot => {
       let data = snapshot.val();
       if (data) {
         console.log('first key')
-        
-        let fullData = _.filter(Object.entries(data).map(([key, value]) => {
-          return byAuthor(value, firebase.auth().currentUser.uid)
-        }))
-        console.log(Object.keys(fullData))
-        this.setState({ fullData })
+        console.log(Object.keys(data))
+
+        Object.entries(data).map(([key, value]) => {
+          data[key] = _.filter(Object.entries(data).map(([key, value]) => {
+            return byAuthor(value, firebase.auth().currentUser.uid, key)
+          }))
+        })
+
+        console.log('key')
+        console.log(Object.keys(data)[index])
+        key = Object.keys(data)[index]
       }
-      console.log('key')
-      console.log(Object.keys(this.state.fullData))
     })
+    return key
   }
 
   // Renders the profile header
@@ -165,10 +176,20 @@ export default class Profile extends React.Component {
     )
   }
 
+  // Gets the data again
+  onRefresh() {
+    let mounted = true;
+    if (mounted) {
+      console.log('refreshing')
+      this.setState({ isFetching: true, }, () => { this.getOffers(); });
+    }
+    return () => mounted = false;
+  }
+
   // Renders the offers by the current user
   render() {
     return (
-      <View style={{ flex: 1, backgroundColor: 'white' }}>
+      <View style={{ flex: 1, backgroundColor: 'white' }} >
         <FlatList
           numColumns={2}
           showsVerticalScrollIndicator={false}
@@ -186,8 +207,10 @@ export default class Profile extends React.Component {
           )}
           keyExtractor={(item, index) => index.toString()}
           ListHeaderComponent={this.renderHeader}
+          onRefresh={() => this.onRefresh()}
+          refreshing={this.state.isFetching}
         />
-      </View>
+      </View >
     );
   }
 }
