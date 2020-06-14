@@ -30,3 +30,7 @@ or quit and reopen the app if necessary.
 
 As I am using one language to program for both iOS and Android, some features don't translate well across the platforms.
 One of these is user interface, so please bear with it. The app may not look as nice on different-sized devices.
+
+- Is ReShare available for iOS?
+
+Right now, ReShare is only available for Android. This is due to financial constraints, so we will hopefully be able to expand to iOS in the future.
