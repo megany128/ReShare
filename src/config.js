@@ -8,5 +8,4 @@ let config = {
   messagingSenderId: '39458655800'
 };
 let app = firebase.initializeApp(config);
-//var functions = firebase.functions(); // This is the error but it is required?
 export const db = app.database();

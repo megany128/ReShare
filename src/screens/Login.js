@@ -5,12 +5,15 @@ import { AsyncStorage } from "react-native"
 
 export default class Login extends React.Component {
   state = { email: '', password: '', errorMessage: null }
+
+  // Signs in to Firebase with the email and password the user inputs
   handleLogin = () => {
     const { email, password } = this.state
     firebase
-      .auth()
-      .signInWithEmailAndPassword(email, password)
+      .auth().signInWithEmailAndPassword(email, password)
       .then(() => 
+      console.log('logging in'),
+      console.log(firebase.auth().currentUser.uid),
       AsyncStorage.setItem('userStatus', 'logged in'),
       AsyncStorage.setItem('profileSetUp', 'set up'),
       this.props.navigation.navigate('Home'))
@@ -18,6 +21,7 @@ export default class Login extends React.Component {
     console.log('handleLogin')
   }
 
+  // Sends an email to the user to reset their password
   forgotPassword = () => {
     const { email } = this.state
     firebase.auth().sendPasswordResetEmail(email)
@@ -30,6 +34,7 @@ export default class Login extends React.Component {
   }
 
   render() {
+    // Renders the login screen
     return (
       <View style={styles.container}>
         <Image style={{ width: 264, height: 220 }} source={require('../icons/login.png')} />

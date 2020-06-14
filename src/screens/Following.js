@@ -1,37 +1,34 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableHighlight } from 'react-native';
+import { View, Text, FlatList, TouchableHighlight } from 'react-native';
 import firebase from 'firebase'
 import _ from 'lodash';
-import Icon from "react-native-vector-icons/Ionicons";
 
 import { db } from '../config';
 let offersRef = db.ref('/offers');
 import { byFollowed } from "/Users/meganyap/Desktop/ReShare/ReShare/index.js"
 import OfferComponent from "../components/OfferComponent"
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { NavigationEvents } from 'react-navigation';
 
 class Following extends Component {
-
   state = {
     offers: [],
     fullData: [],
-    following: [],
     isFetching: false
   };
 
   getData = () => {
+    // Gets the UIDs of the people that the current user is following
     db.ref('/users/' + firebase.auth().currentUser.uid + '/following').on('value', snapshot => {
       let data = snapshot.val();
       var following;
       if (data) {
         following = Object.values(data);
-        console.log('following: ' + following)
       }
 
+      // Gets all the offers that have been published by the people the current user is following
       offersRef.on('value', snapshot => {
         let data = snapshot.val();
-        if (data) {
+        if (data && following) {
           let fullData = Object.values(data);
           this.setState({ fullData })
 
@@ -57,7 +54,6 @@ class Following extends Component {
   }
 
   renderHeader = () => {
-    const { currentUser } = this.state
     return (
       <View
         style={{
@@ -72,6 +68,7 @@ class Following extends Component {
     )
   }
 
+  // Navigates to Offer, passing the appropriate parameters
   pressRow(item) {
     this.props.navigation.navigate('Offer', {
       name: item.name,
@@ -85,6 +82,7 @@ class Following extends Component {
     })
   }
 
+  // Gets the data again
   onRefresh() {
     this.setState({ isFetching: true, }, () => { this.getData(); });
   }
@@ -102,6 +100,7 @@ class Following extends Component {
             scrollEventThrottle={16}
             snapToAlignment="center"
             data={this.state.offers}
+            // Renders a list of offers by the people the current user follows
             renderItem={({ item }) => (
               <TouchableHighlight style={{ marginHorizontal: 10 }} onPress={() => { this.pressRow(item) }}>
                 <OfferComponent
@@ -132,12 +131,3 @@ class Following extends Component {
   }
 }
 export default Following;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'white'
-  },
-});

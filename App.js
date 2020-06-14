@@ -1,12 +1,15 @@
-import { createAppContainer, createSwitchNavigator, SwitchNavigator } from 'react-navigation';
+// Imports the necessary navigators
+import { createAppContainer } from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { createStackNavigator, TransitionPresets } from 'react-navigation-stack'
 
+// Imports the necessary icons and fonts
 import Ion from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
+// Imports the screens used
 import Home from './src/screens/Home';
 import Following from './src/screens/Following';
 import Add from './src/screens/Add';
@@ -28,15 +31,16 @@ import UserProfile from './src/screens/UserProfile'
 import MessageScreen from './src/screens/MessageScreen'
 import Edit from './src/screens/Edit'
 
-import React, { Component } from 'react';
+import React from 'react';
 
+// Sets up the bottom tabs (Home, Following, Add, Messages, and Profile)
 const MainTabs = createBottomTabNavigator(
   {
     Home: {
       screen: Home,
       navigationOptions: {
         tabBarLabel: "HOME",
-        labelStyle: {fontFamily: 'gilroy'},
+        labelStyle: { fontFamily: 'gilroy' },
         tabBarIcon: ({ tintColor }) => (
           <FontAwesome name="home" color={tintColor} size={24} />
         ),
@@ -46,7 +50,7 @@ const MainTabs = createBottomTabNavigator(
       screen: Following,
       navigationOptions: {
         tabBarLabel: "FOLLOWING",
-        labelStyle: {fontFamily: 'gilroy'},
+        labelStyle: { fontFamily: 'gilroy' },
         tabBarIcon: ({ tintColor }) => (
           <FontAwesome5 name="user-friends" color={tintColor} size={24} />
         )
@@ -66,7 +70,7 @@ const MainTabs = createBottomTabNavigator(
       screen: Messages,
       navigationOptions: {
         tabBarLabel: "MESSAGES",
-        labelStyle: {fontFamily: 'gilroy'},
+        labelStyle: { fontFamily: 'gilroy' },
         tabBarIcon: ({ tintColor }) => (
           <MaterialIcons name="message" color={tintColor} size={30} />
         )
@@ -75,7 +79,7 @@ const MainTabs = createBottomTabNavigator(
     MyProfile: {
       screen: MyProfile,
       navigationOptions: {
-        labelStyle: {fontFamily: 'gilroy'},
+        labelStyle: { fontFamily: 'gilroy' },
         tabBarLabel: "PROFILE",
         tabBarIcon: ({ tintColor }) => (
           <FontAwesome5 name="user-circle" color={tintColor} size={24} />
@@ -99,6 +103,8 @@ const MainTabs = createBottomTabNavigator(
     }
   },
 );
+
+// Sets up the other screens that can be navigated to
 const stackNavigator = createStackNavigator(
   {
     Loading: {
@@ -167,7 +173,8 @@ const stackNavigator = createStackNavigator(
       screen: Offer,
       navigationOptions: {
         headerShown: false,
-        headerBackTitle: 'Back'
+        headerBackTitle: 'Back',
+        gestureEnabled: false
       }
     },
     SearchResults: {
@@ -223,14 +230,15 @@ const stackNavigator = createStackNavigator(
     },
     Edit: {
       screen: Edit,
-        navigationOptions: {
-          headerShown: false,
-          headerBackTitle: 'Back',
-        }
+      navigationOptions: {
+        headerShown: false,
+        headerBackTitle: 'Back',
+      }
     }
   },
   { initialRouteName: "Loading" }
 )
 
+// Exports the app
 const AppContainer = createAppContainer(stackNavigator);
 export default AppContainer

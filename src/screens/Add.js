@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { Component } from 'react';
 import {
   View,
   Text,
@@ -7,28 +7,30 @@ import {
   StyleSheet,
   TextInput,
   Alert,
-  Button
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { db } from '../config';
 import firebase from 'firebase'
 import 'firebase/storage';
 import uuid from 'react-native-uuid';
-import { AsyncStorage } from "react-native"
 import ResourceImagePicker from "../components/ResourceImagePicker"
 import * as Permissions from 'expo-permissions';
 import Constants from 'expo-constants';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from 'moment'
-import { useFonts } from '@use-expo/font';
+import { AsyncStorage } from "react-native"
+import { NavigationEvents } from 'react-navigation';
 
 let offersRef = db.ref('/offers');
+
+// Adapted from https://medium.com/@joananespina/uploading-to-firebase-storage-with-react-native-39f4a500dbcb
 
 class Add extends Component {
   constructor() {
     super()
     this.state = {
+      // Sets the visibility of the date picker
       isVisible: false
     }
   }
@@ -43,10 +45,13 @@ class Add extends Component {
     tags: '',
     imageUri: ''
   };
+
+  // Shows the date picker
   showPicker = () => {
     this.setState({ isVisible: true })
   };
 
+  // Hides the date picker and resets expiry (users have to press confirm to save their changes)
   hidePicker = () => {
     this.setState({
       isVisible: false,
@@ -54,30 +59,34 @@ class Add extends Component {
     })
   }
 
+  // Hides the date picker and sets the state of expiry to the date the user has picked
   handlePicker = (date) => {
     this.setState({
       isVisible: false,
-      expiry: moment(date).format('MMMM Do YYYY')
+      expiry: moment(date).format('MMMM Do YYYY')   // Formats the date into a readable form
     })
   }
 
   componentDidMount() {
     this.getPermissionAsync();
     this.refreshData()
-    var user = firebase.auth().currentUser;
   }
 
+  // Sets all the inputs to blank
   refreshData = () => {
-    this.setState({ name: '',
-    category: '',
-    description: '',
-    location: '',
-    expiry: '',
-    tags: '',
-    imageUri: ''
-  })
+    this.setState({
+      name: '',
+      category: '',
+      description: '',
+      location: '',
+      expiry: '',
+      tags: '',
+      imageUri: '',
+      image: ''
+    })
   }
 
+  // Gets permission to access the camera roll
   getPermissionAsync = async () => {
     if (Constants.platform.ios) {
       console.log('getting permission');
@@ -88,34 +97,42 @@ class Add extends Component {
     }
   }
 
+  // Adds the offer to Firebase according to what the user has input  
   addOffer(name, category, description, location, expiry, id) {
-    offersRef.push({
+    const key = offersRef.push({
       name, author: firebase.auth().currentUser.uid, category, time: firebase.database.ServerValue.TIMESTAMP, description, location, expiry, id
-    });
-    this.setState({
-      name: '', category: '', description: '', location: '', expiry: '', id: ''
-    })
+    }).key
+    return key
   };
 
-  handleChange = e => {
-    this.setState({
-      e: e.nativeEvent.text
-    });
-  };
-
-
+  // Sets this.state.imageUri to the uri that is passed
   setOfferImage = (uri) => {
     this.setState({ imageUri: uri.uri })
   }
 
+  // Alerts the user if they have not filled out one of the fields
+  // If all fields are filled, uploads the offer to Firebase along with the blob of the image
   handleSubmit = () => {
+    console.log(firebase.auth().currentUser.displayName.toUpperCase() + ' HAS SUBMITTED AN OFFER')
+    console.log('==========================================================================')
+    console.log('name: ' + this.state.name)
+    console.log('category: ' + this.state.category)
+    console.log('description: ' + this.state.description)
+    console.log('location: ' + this.state.location)
+    console.log('image URI: ' + this.state.imageUri)
+    console.log('expiry (optional): ' + this.state.expiry)
+
+    // Checks if an image has been selected
     if (!(/\S/.test(this.state.imageUri))) {
+      console.log('\nERROR: NO IMAGE')
       Alert.alert(
         "Please add an image for your offer"
       );
     }
 
+    // Checks if the other inputs have been filled
     else if (!(/\S/.test(this.state.name)) || !(/\S/.test(this.state.category)) || !(/\S/.test(this.state.description)) || !(/\S/.test(this.state.location))) {
+      console.log('\nERROR: FIELD BLANK')
       Alert.alert(
         "Please fill in all the fields before submitting"
       );
@@ -127,8 +144,8 @@ class Add extends Component {
     }
   };
 
+  // Converts the URI to a blob that can be stored in Firebase Storage
   uriToBlob = (uri) => {
-    console.log('uri: ' + uri)
     return new Promise(function (resolve, reject) {
       try {
         var xhr = new XMLHttpRequest();
@@ -139,28 +156,60 @@ class Add extends Component {
           if (xhr.status === 200) { resolve(xhr.response) }
           else { reject("Loading error:" + xhr.statusText) }
         };
+        console.log('\nThe URI has been converted to a blob')
         xhr.send();
       }
       catch (err) { reject(err.message) }
     })
   }
 
+  // Uploads the offer to Firebase along with the blob
   uploadToFirebase = (blob) => {
-    console.log('uploading to firebase')
+    console.log('Uploading the offer to firebase...')
     return new Promise((resolve, reject) => {
       var storageRef = firebase.storage().ref();
+
+      // Generates a random and unique ID for the image
       const imageUuid = uuid.v1();
       console.log('uuid: ' + imageUuid)
-      this.addOffer(this.state.name, this.state.category, this.state.description, this.state.location, this.state.expiry, imageUuid);
-      Alert.alert('Offer saved successfully');
-      storageRef.child('offers/' + imageUuid + '.jpg').put(blob, {
+
+      AsyncStorage.setItem('imageLoaded', 'not loaded')
+
+      // Stores the blob as an image in Firebase Storage under the previously generated UUID
+      var imageRef = storageRef.child('offers/' + imageUuid + '.jpg')
+        .put(blob, {
         contentType: 'image/jpeg'
       }).then((snapshot) => {
+        AsyncStorage.setItem('imageLoaded', 'loaded')
         blob.close();
         resolve(snapshot);
       }).catch((error) => {
         reject(error);
       });
+      console.log('The image has been stored in Firebase Storage under offers/' + imageUuid)
+
+      // Adds the offer to Firebase and gets the key
+      const key = this.addOffer(this.state.name, this.state.category, this.state.description, this.state.location, this.state.expiry, imageUuid);
+      console.log('\nThe offer has successfully been added to Firebase!')
+      Alert.alert(
+        'Offer saved successfully',
+        '',
+        [
+          {text: 'OK', onPress: () => this.props.navigation.navigate('Offer', {
+            name: this.state.name,
+            uid: firebase.auth().currentUser.uid,
+            key: key,
+            description: this.state.description,
+            category: this.state.category,
+            expiry: this.state.expiry,
+            location: this.state.location,
+            time: this.state.time,
+            imageID: imageUuid,
+            prevScreen: 'add'
+          })},
+        ],
+        {cancelable: false},
+      );
     });
   }
 
@@ -172,6 +221,7 @@ class Add extends Component {
         contentContainerStyle={styles.container}
         scrollEnabled={true}
       >
+        <NavigationEvents onDidFocus={() => this.refreshData()} />
         <Text style={styles.title}>Add Offer</Text>
         <ResourceImagePicker image={this.state.image} onImagePicked={this.setOfferImage} />
         <Text style={styles.heading}>Offer Title</Text>
@@ -201,7 +251,7 @@ class Add extends Component {
             { label: 'Sports' },
             { label: 'Toys and Games' }
           ]}
-          defaultNull={this.state.category === ''}
+          defaultNull={this.state.category === ''} // If this.state.category is null, show the placeholder
           placeholder="Select a category"
           containerStyle={styles.dropdown}
           style={{ backgroundColor: 'white', borderTopLeftRadius: 25, borderTopRightRadius: 25, borderBottomLeftRadius: 25, borderBottomRightRadius: 25, padding: 20 }}
@@ -235,7 +285,7 @@ class Add extends Component {
             { label: 'Sarawak' },
             { label: 'Terengganu' }
           ]}
-          defaultNull={this.state.location === ''}
+          defaultNull={this.state.location === ''} // If this.state.location is null, show the placeholder
           placeholder="Select a state"
           containerStyle={styles.dropdown}
           style={{ backgroundColor: 'white', borderTopLeftRadius: 25, borderTopRightRadius: 25, borderBottomLeftRadius: 25, borderBottomRightRadius: 25 }}

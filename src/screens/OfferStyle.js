@@ -61,8 +61,6 @@ export default {
     alignItems: 'flex-end',
     flex: 1,
     justifyContent: 'flex-end',
-    // marginBottom: 15,
-    // marginRight: 15,
   },
   footer: {
     position: 'absolute',

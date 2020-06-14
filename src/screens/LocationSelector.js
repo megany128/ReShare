@@ -1,17 +1,10 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, TextInput, SafeAreaView, Platform, Image, FlatList, TouchableHighlight, TouchableOpacity } from "react-native";
-import { List, ListItem, Divider } from 'react-native-elements';
+import { View, Text, StyleSheet, SafeAreaView, FlatList, TouchableHighlight, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import _ from 'lodash';
-import { contains } from "/Users/meganyap/Desktop/ReShare/ReShare/index.js"
-import { Dimensions } from 'react-native';
 import { AsyncStorage } from "react-native"
 
-import { db } from '../config';
-let offersRef = db.ref('/offers');
-
 class LocationSelector extends Component{
-
   state = {
     locations: [
         {key: 'Johor'},
@@ -48,6 +41,7 @@ class LocationSelector extends Component{
     if(mounted){
         console.log('LocationSelector')
         try {
+          // Gets the currently selected location filter
           AsyncStorage.getItem('locationFilterState').then(data => {
             if(data) {
               const currentLocation = JSON.parse(data);
@@ -65,6 +59,7 @@ class LocationSelector extends Component{
 
   FlatListItemSeparator = () => <View style={styles.line} />;
 
+  // Sets the location filter to the one the user has chosen and navigates back to SearchResults
   selectLocation(item) {
     console.log(item)
     AsyncStorage.setItem('locationFilterState',
@@ -72,6 +67,7 @@ class LocationSelector extends Component{
     this.props.navigation.navigate("SearchResults")
   }
 
+  // Resets the location filter and navigates back to SearchResults
   clearFilter() {
     AsyncStorage.setItem('locationFilterState',
     JSON.stringify(""));
@@ -79,7 +75,7 @@ class LocationSelector extends Component{
   }
 
   render() {
-    const { currentUser } = this.state
+    // Renders a list of locations for the user to select
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
         <View style={{ flex: 0 }}>
@@ -106,6 +102,7 @@ class LocationSelector extends Component{
           style = {styles.listStyle}
           data = {this.state.locations}
           scrollEnabled = {false}
+          // Renders the location as bold if it is currently selected
           renderItem = {({item} ) => (
             <TouchableHighlight style = {styles.listItemStyle} onPress={this.selectLocation.bind(this, item.key)}>
               {item.key === this.state.currentLocation ? (

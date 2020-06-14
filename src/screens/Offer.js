@@ -1,13 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, ImageBackground, ScrollView, StyleSheet, Image, Alert } from "react-native";
-import { Header } from 'react-native-elements'
 import Icon from "react-native-vector-icons/SimpleLineIcons";
 import Icon2 from "react-native-vector-icons/MaterialCommunityIcons"
-import Menu, { MenuItem, MenuDivider } from 'react-native-material-menu';
-import { GiftedChat, Send } from 'react-native-gifted-chat';
+import Menu, { MenuItem } from 'react-native-material-menu';
 import firebase from 'firebase'
-require('firebase/firestore')
-require("firebase/functions");
+import { AsyncStorage } from "react-native"
 
 import { db } from '../config';
 let offersRef = db.ref('/offers');
@@ -18,6 +15,36 @@ import { NavigationEvents } from 'react-navigation';
 const styles = StyleSheet.create({ ...OfferStyle })
 
 // Adapted from https://github.com/nattatorn-dev/react-native-user-profile (date of retrieval: May 18)
+
+// Renders a button or a comment or nothing based on who the current user is
+const RenderButton = (props) => {
+  const { uid, author, keyItem, name, organisation, currentUid } = props;
+
+  // If the current user is the one who posted the offer, don't render anything
+  if (uid === currentUid) {
+    return (
+      null
+    )
+  }
+
+  // If the current user did not post it and they are an organisation, allow them to contact the donor
+  else if (organisation) {
+    return (
+      <View style={styles.footer}>
+        <TouchableOpacity style={styles.buttonFooter} onPress={() => this.contactDonor(uid, author, keyItem, name)}>
+          <Text style={styles.textFooter}>CONTACT DONOR</Text>
+        </TouchableOpacity>
+      </View>
+    )
+  }
+
+  // If the current user is an individual and did not post it, render a message that tells them they cannot accept it
+  else {
+    return (
+      <Text style={{ alignSelf: 'center', fontSize: 16, position: 'absolute', bottom: 15 }}>Non-organisations cannot accept offers</Text>
+    )
+  }
+}
 
 export default class Offer extends React.PureComponent {
   state = {
@@ -32,9 +59,33 @@ export default class Offer extends React.PureComponent {
     url: '../icons/exampleOfferImg.jpeg',
     key: '',
     uid: '',
-    organisation: false
+    organisation: false,
+    profileUrl: '../icons/exampleOfferImg.jpeg'
   }
 
+  // Gets the profile picture of the current user
+  getProfilePicture = (uid) => {
+    db.ref('/users').child(uid).once("value")
+      .then((snapshot) => {
+        console.log(snapshot)
+        const imageID = snapshot.child('pfp').val();
+
+        AsyncStorage.getItem('profileLoaded').then(data => {
+          if (data === 'loaded') {
+            const ref = firebase.storage().ref('profile/' + { imageID }.imageID + '.jpg');
+            this.getProfileURL(ref)
+          }
+        })
+      });
+  }
+
+  // Gets the URL of the image ref for the profile
+  getProfileURL = async (ref) => {
+    const url = await ref.getDownloadURL();
+    this.setState({ profileUrl: url })
+  }
+
+  // Gets the name of the user with a certain UID
   getAuthor = (uid) => {
     var ref = firebase.database().ref("users/" + uid);
     ref.once("value")
@@ -45,6 +96,7 @@ export default class Offer extends React.PureComponent {
       });
   }
 
+  // Gets the type (organisation or individual) of the user with a certain UID
   getType = (uid) => {
     var ref = firebase.database().ref("users/" + uid);
     ref.once("value")
@@ -59,15 +111,18 @@ export default class Offer extends React.PureComponent {
 
   _menu = null;
 
+  // Sets up the menu option
   setMenuRef = ref => {
     console.log('set menu ref')
     this._menu = ref;
   };
 
+  // Hides the menu
   hideMenu = () => {
     this._menu.hide();
   };
 
+  // Shows the menu 
   showMenu = () => {
     console.log('show menu')
     this._menu.show();
@@ -80,6 +135,8 @@ export default class Offer extends React.PureComponent {
   getData = async () => {
     let mounted = true;
     if (mounted) {
+      AsyncStorage.setItem('profileLoaded', 'loaded')
+      // Gets the parameters passed to the screen by navigation
       const { navigation } = this.props;
 
       const name = navigation.getParam('name', 'no name');
@@ -91,7 +148,6 @@ export default class Offer extends React.PureComponent {
 
       const key = navigation.getParam('key', 'no key')
       this.setState({ key })
-      console.log(JSON.stringify(key))
 
       const description = navigation.getParam('description', 'no description');
       this.setState({ description })
@@ -106,26 +162,48 @@ export default class Offer extends React.PureComponent {
       this.setState({ location })
 
       const time = navigation.getParam('time', 'no time')
-      this.setState({ time })
+      offersRef.child(key).once("value")
+        .then((snapshot) => {
+          const time = snapshot.child("time").val();
+          this.setState({ time: time })
+        });
 
       const imageID = navigation.getParam('imageID', 'no imageID')
-      const ref = firebase.storage().ref('offers/' + { imageID }.imageID + '.jpg');
-      const url = await ref.getDownloadURL();
-      this.setState({ url })
+      AsyncStorage.getItem('imageLoaded').then(data => {
+        if (data === 'loaded') {
+          const ref = firebase.storage().ref('offers/' + { imageID }.imageID + '.jpg');
+          this.getURL(ref)
+        }
+      })
 
+      this.getProfilePicture(uid)
+
+      // Renders the UI
       this.renderDescription()
-      this.renderImage()
+      AsyncStorage.getItem('imageLoaded').then(data => {
+        if (data === 'loaded') {
+          this.renderImage()
+        }
+      })
       this.renderDetail()
 
       this.getType(firebase.auth().currentUser.uid)
+      this.forceUpdate()
     }
     return () => mounted = false;
+  }
+
+  // Gets the URL of the image ref
+  getURL = async (ref) => {
+    const url = await ref.getDownloadURL();
+    this.setState({ url })
   }
 
   static defaultProps = {
     containerStyle: {},
   }
 
+  // Renders the offer's description, location, and expiry date
   renderDetail = () => {
     return (
       <View>
@@ -147,6 +225,7 @@ export default class Offer extends React.PureComponent {
     )
   }
 
+  // Navigates to the correct profile based on the UID passed
   navigateProfile = (uid) => {
     if (uid === firebase.auth().currentUser.uid) {
       this.props.navigation.navigate('MyProfile')
@@ -156,13 +235,16 @@ export default class Offer extends React.PureComponent {
     }
   }
 
+  // Renders the category, name, date, and author of the offer
   renderDescription = () => {
     return (
       <View style={{ marginVertical: 25 }}>
         <Text style={styles.categoryText}>{this.state.category.toUpperCase()}</Text>
         <Text style={styles.priceText}>{this.state.name}</Text>
         <View style={{ flexDirection: 'row', marginVertical: 5, alignContent: 'center' }}>
-          <Image style={styles.authorProfile} source={require('../icons/exampleOfferImg.jpeg')} />
+          <Image style={styles.authorProfile} source={{
+            uri: this.state.profileUrl,
+          }} />
           <Text onPress={() => { this.navigateProfile(this.state.uid) }} style={styles.authorText}>{this.state.author}</Text>
         </View>
         <Text style={styles.descriptionText}>{new Date(this.state.time).toLocaleDateString("en-MY")}</Text>
@@ -170,6 +252,17 @@ export default class Offer extends React.PureComponent {
     )
   }
 
+  backDecision = () => {
+    const prevScreen = this.props.navigation.getParam('prevScreen', 'no prevScreen')
+    if (prevScreen === 'add') {
+      this.props.navigation.navigate('Home')
+    }
+    else {
+      this.props.navigation.goBack()
+    }
+  }
+
+  // Renders the offer image, the menu and the back button
   renderImage = () => {
     return (
       <View style={styles.headerContainer}>
@@ -186,7 +279,7 @@ export default class Offer extends React.PureComponent {
                 color='#D3D3D3'
                 size={30}
                 style={{ marginTop: 40, marginLeft: 20 }}
-                onPress={() => this.props.navigation.goBack()}
+                onPress={() => this.backDecision()}
                 hitSlop={{ top: 20, bottom: 20, left: 50, right: 50 }}
               />
               <View style={{ marginTop: 40, marginLeft: 360, position: "absolute" }}>
@@ -224,6 +317,7 @@ export default class Offer extends React.PureComponent {
     )
   }
 
+  // Navigates to Edit, passing the offer's attributes as parameters
   editOffer = () => {
     console.log('editing offer')
     this.props.navigation.navigate('Edit', {
@@ -240,6 +334,7 @@ export default class Offer extends React.PureComponent {
     this.hideMenu()
   }
 
+  // Deletes the offer
   deleteOffer = () => {
     console.log('deleting offer')
     offersRef.child(this.state.key).remove();
@@ -247,6 +342,7 @@ export default class Offer extends React.PureComponent {
     this.props.navigation.navigate('Home')
   }
 
+  // Adds the offer key under reported
   reportOffer = () => {
     db.ref('/reported').push({
       key: this.state.key
@@ -263,9 +359,11 @@ export default class Offer extends React.PureComponent {
     );
   }
 
+  // Contacts the donor of the offer
   contactDonor = (uid, author, key, name) => {
     const chatID = this.chatID(uid)
 
+    // Sets the latest message of the chat to the user requesting the offer
     firebase.database().ref('messages').child(chatID).update({
       latestMessage: {
         _id: key,
@@ -275,6 +373,7 @@ export default class Offer extends React.PureComponent {
       }
     })
 
+    // Adds a message to the chat that the user is requesting the offer
     firebase.database().ref('messages/' + chatID).once('value', function (snapshot) {
       if (!snapshot.hasChild(key)) {
         firebase.database().ref('messages').child(chatID + '/' + key).set({
@@ -286,13 +385,14 @@ export default class Offer extends React.PureComponent {
       }
     })
 
-
+    // Navigates to MessageScreen, passing the uid and name of the author as props
     this.props.navigation.navigate('MessageScreen', {
       id: uid,
       author: author
     })
   }
 
+  // Creates a chatID by joining the current user's UID and the other user's UID
   chatID = (id) => {
     const chatterID = firebase.auth().currentUser.uid;
     const chateeID = id;
@@ -301,12 +401,15 @@ export default class Offer extends React.PureComponent {
     chatIDpre.push(chateeID);
     chatIDpre.sort();
 
-
     console.log(chatIDpre.join('_'))
     return chatIDpre.join('_');
   };
 
+  // Renders the offer
   render() {
+    console.log(this.state.author)
+    console.log(firebase.auth().currentUser.uid)
+    const key = this.props.navigation.getParam('key', 'no key')
     return (
       <View style={styles.mainviewStyle}>
         <NavigationEvents onDidFocus={() => this.getData()} />
@@ -320,15 +423,14 @@ export default class Offer extends React.PureComponent {
           <View style={styles.productRow}>{this.renderDetail()}</View>
         </ScrollView>
 
-        {this.state.organisation ? (
-          <View style={styles.footer}>
-            <TouchableOpacity style={styles.buttonFooter} onPress={() => this.contactDonor(this.state.uid, this.state.author, this.state.key, this.state.name)}>
-              <Text style={styles.textFooter}>CONTACT DONOR</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-            <Text style={{ alignSelf: 'center', fontSize: 16, position: 'absolute', bottom: 15 }}>Non-organisations cannot accept offers</Text>
-          )}
+        <RenderButton
+          uid={this.state.uid}
+          author={this.state.author}
+          keyItem={JSON.stringify(key)}
+          name={this.state.name}
+          organisation={this.state.organisation}
+          currentUid={firebase.auth().currentUser.uid}
+        />
       </View>
     )
   }

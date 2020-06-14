@@ -12,11 +12,14 @@ export default class SignUpOrganisation extends React.Component {
     AsyncStorage.setItem('profileSetUp', JSON.stringify('not set up'))
   }
 
+  // Creates an account in Firebase Authentication with the user's email and password
   handleSignUp = () => {
     firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password)
       .then((userCredentials) => {
         this.addUser(this.state.name, userCredentials.user.uid)
         console.log("created user")
+
+        // Adds a display name
         if (userCredentials.user) {
           console.log("updating profile")
           userCredentials.user.updateProfile({
@@ -24,6 +27,8 @@ export default class SignUpOrganisation extends React.Component {
           }).then((s) => {
             console.log('handleSignUp')
             console.log(userCredentials.user)
+
+            // Navigates to the profile setup page to add more details
             this.props.navigation.navigate('SetupProfileOrganisation');
           })
         }
@@ -31,6 +36,7 @@ export default class SignUpOrganisation extends React.Component {
       .catch(error => this.setState({ errorMessage: error.message }))
   }
 
+  // Adds an entry for the user in Firebase Database (instead of Firebase Authentication) to add other details
   addUser(name, uid) {
     console.log('adding user to db')
     db.ref('users/' + uid).set({
@@ -41,19 +47,16 @@ export default class SignUpOrganisation extends React.Component {
       category: '',
       following: ''
     })
-    db.ref('users/' + uid + '/following/sample').set({
-      uid: 'uid'
-    })
   };
 
   render() {
     return (
       <KeyboardAwareScrollView
-          style={{ backgroundColor: 'white' }}
-          resetScrollToCoords={{ x: 0, y: 0 }}
-          contentContainerStyle={styles.container}
-          scrollEnabled={false}
-        > 
+        style={{ backgroundColor: 'white' }}
+        resetScrollToCoords={{ x: 0, y: 0 }}
+        contentContainerStyle={styles.container}
+        scrollEnabled={false}
+      >
         <Image style={{ width: 192, height: 160 }} source={require('../icons/signup.png')} />
         <Text style={styles.logo}>Sign up</Text>
         {this.state.errorMessage &&
@@ -75,7 +78,7 @@ export default class SignUpOrganisation extends React.Component {
           </TouchableOpacity>
         </View>
 
-        <Text style={{marginBottom: 15, alignSelf: 'center', color: 'grey'}}>Organisations can donate and accept resources</Text>
+        <Text style={{ marginBottom: 15, alignSelf: 'center', color: 'grey' }}>Organisations can donate and accept resources</Text>
 
         <View style={styles.inputView}>
           <TextInput

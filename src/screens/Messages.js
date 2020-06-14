@@ -12,25 +12,34 @@ class Messages extends Component {
     isFetching: false
   }
   componentDidMount() {
-    this.getData()
+    let mounted = true;
+    if (mounted) {
+      this.getData()
+    }
+    return () => mounted = false;
   }
 
   getData = () => {
     let mounted = true;
     if (mounted) {
+      // Gets all the chats
       db.ref('messages').on('value', snapshot => {
         let data = snapshot.val();
         let chats = new Array();
         chats = Object.values(data);
 
-        const sortedChats = chats.sort(function (a, b) { return a.latestMessage.createdAt - b.latestMessage.createdAt });
-        this.setState({ chats: sortedChats })
+        // Sorts the chats by the latest message sent
+        if (chats.length > 1) {
+          const sortedChats = chats.sort(function (a, b) { return b.latestMessage.createdAt - a.latestMessage.createdAt });
+          this.setState({ chats: sortedChats })
+        }
         this.setState({ isFetching: false })
       });
     }
     return () => mounted = false;
   }
 
+  // Gets the key of an offer at a certain index in the list of offers
   getKey = (index) => {
     let key = 0;
     db.ref('/messages').on('value', snapshot => {
@@ -41,32 +50,34 @@ class Messages extends Component {
     return key
   }
 
+  // Gets the UID of the other user in the conversation 
   getUID = (index) => {
-    let key = 0;
-    db.ref('/messages').on('value', snapshot => {
-      let data = snapshot.val();
-      if (data)
-        key = Object.keys(data)[index]
-    })
+    let key = this.getKey(index)
     let UID = key.replace(firebase.auth().currentUser.uid, '')
     UID = UID.replace('_', '')
     return UID
   }
 
+  // Gets the name of the user with a certain UID
   getUserInfo = (uid) => {
     var ref = firebase.database().ref("users/" + uid);
     var name = ''
     ref.on('value', snapshot => {
       name = snapshot.child("name").val();
     })
-    console.log(name)
     return name
   }
 
+  // Refreshes the data
   onRefresh() {
-    this.setState({ isFetching: true, }, () => { this.getData(); });
+    let mounted = true;
+    if (mounted) {
+      this.setState({ isFetching: true, }, () => { this.getData(); });
+    }
+    return () => mounted = false;
   }
 
+  // Renders the chats
   render() {
     return (
       <View style={styles.container}>
@@ -82,17 +93,17 @@ class Messages extends Component {
               onPress={() => this.props.navigation.navigate('MessageScreen', { id: this.getUID(index), name: this.getUserInfo(this.getUID(index)) })}
             >
               {this.getKey(index).includes(firebase.auth().currentUser.uid) ?
-              (<List.Item
-                title={this.getUserInfo(this.getUID(index))}
-                description={item.latestMessage.text}
-                titleNumberOfLines={1}
-                titleStyle={styles.listTitle}
-                descriptionStyle={styles.listDescription}
-                descriptionNumberOfLines={1}
-              />) : (
-                <Text></Text>
-              )
-             }
+                (<List.Item
+                  title={this.getUserInfo(this.getUID(index))}
+                  description={this.state.chats[index].latestMessage.text}
+                  titleNumberOfLines={1}
+                  titleStyle={styles.listTitle}
+                  descriptionStyle={styles.listDescription}
+                  descriptionNumberOfLines={1}
+                />) : (
+                  <Text></Text>
+                )
+              }
 
             </TouchableOpacity>
           )}

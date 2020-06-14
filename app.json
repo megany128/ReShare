@@ -25,7 +25,20 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.reshare.reshare",
+      "buildNumber": "1.0.0"
+    },
+    "android": {
+      "package": "com.reshare.reshare",
+      "versionCode": 1
+    },
+    "packagerOpts": {
+      "assetExts": [
+        "ttf",
+        "mp4",
+        "png"
+      ]
     },
     "extra": {
       "firebase": {

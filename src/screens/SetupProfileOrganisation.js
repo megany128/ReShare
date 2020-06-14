@@ -5,30 +5,112 @@ import { AsyncStorage } from "react-native"
 import { db } from '../config'
 import { Keyboard } from 'react-native'
 
-import * as Permissions from 'expo-permissions';
 import Constants from 'expo-constants';
+import * as Permissions from 'expo-permissions';
 import 'firebase/storage';
 import uuid from 'react-native-uuid';
 import DropDownPicker from 'react-native-dropdown-picker';
+import ProfileImagePicker from "../components/ProfileImagePicker"
 
 export default class SetupProfileOrganisation extends React.Component {
     state = { bio: '', phoneNumber: '', imageUri: '', category: null }
 
+    // Edits the entry for the user in Firebase Database (instead of in Firebase Authentication)
     setUpProfile = (bio, phoneNumber, category) => {
         console.log('setting up user profile')
         console.log(firebase.auth().currentUser.uid)
         console.log(bio)
         console.log(phoneNumber)
+
+        // Updates the bio, phone number, and category (only for organisations)
         db.ref('users/' + firebase.auth().currentUser.uid).update({
             bio: bio,
             phoneNumber: phoneNumber,
             category: category
         })
-        AsyncStorage.setItem('profileSetUp', JSON.stringify('set up')),
-            AsyncStorage.setItem('userStatus', JSON.stringify('logged in')),
-            this.props.navigation.navigate('Home')
+
+        this.uriToBlob(this.state.imageUri).then((blob) => {
+            return this.uploadToFirebase(blob);
+        });
+
+        AsyncStorage.setItem('profileSetUp', JSON.stringify('set up'))
+        AsyncStorage.setItem('userStatus', JSON.stringify('logged in'))
+        this.props.navigation.navigate('Home')
     }
 
+    // Sets this.state.imageUri to the uri that is passed
+    setProfilePicture = (uri) => {
+        this.setState({ imageUri: uri.uri })
+    }
+
+    // Converts the URI to a blob that can be stored in Firebase Storage
+    uriToBlob = (uri) => {
+        return new Promise(function (resolve, reject) {
+            try {
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", uri);
+                xhr.responseType = "blob";
+                xhr.onerror = function () { reject("Network error.") };
+                xhr.onload = function () {
+                    if (xhr.status === 200) { resolve(xhr.response) }
+                    else { reject("Loading error:" + xhr.statusText) }
+                };
+                console.log('\nThe URI has been converted to a blob')
+                xhr.send();
+            }
+            catch (err) { reject(err.message) }
+        })
+    }
+
+    // Uploads the offer to Firebase along with the blob
+    uploadToFirebase = (blob) => {
+        console.log('Uploading the offer to firebase...')
+        return new Promise((resolve, reject) => {
+            var storageRef = firebase.storage().ref();
+
+            // Generates a random and unique ID for the image
+            const imageUuid = uuid.v1();
+            console.log('uuid: ' + imageUuid)
+
+            // Updates the profile picture in the database
+            db.ref('users/' + firebase.auth().currentUser.uid).update({
+                pfp: imageUuid
+            })
+
+            AsyncStorage.setItem('profileLoaded', 'not loaded')
+
+            // Stores the blob as an image in Firebase Storage under the previously generated UUID
+            var imageRef = storageRef.child('profile/' + imageUuid + '.jpg')
+                .put(blob, {
+                    contentType: 'image/jpeg'
+                }).then((snapshot) => {
+                    AsyncStorage.setItem('profileLoaded', 'loaded')
+                    blob.close();
+                    resolve(snapshot);
+                }).catch((error) => {
+                    reject(error);
+                });
+            console.log('The image has been stored in Firebase Storage under profile/' + imageUuid)
+
+        });
+    }
+
+    // Gets permission to access the camera roll
+    getPermissionAsync = async () => {
+        if (Constants.platform.ios) {
+            console.log('getting permission');
+            const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+            if (status !== 'granted') {
+                alert('Sorry, we need camera roll permissions to make this work!');
+            }
+        }
+    }
+
+    componentDidMount = () => {
+        this.getPermissionAsync()
+    }
+
+    // Renders the profile setup UI
     render() {
         return (
             <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -40,11 +122,8 @@ export default class SetupProfileOrganisation extends React.Component {
                         </Text>}
 
                     <View style={{ flexDirection: 'row', marginTop: 100, marginHorizontal: 35, marginBottom: 20 }}>
-                        <Image
-                            source={require('../icons/addpfp.png')}
-                            style={{ width: 125, height: 125, borderRadius: 400 / 2 }}
-                        />
-                        <View style={{ flexDirection: 'column', marginLeft: 20, marginTop: 25 }}>
+                        <ProfileImagePicker image={this.state.image} onImagePicked={this.setProfilePicture} />
+                        <View style={{ flexDirection: 'column', position: 'absolute', left: 150, marginTop: 25 }}>
                             <Text style={styles.individual}>ORGANISATION</Text>
                             <Text style={styles.name}>{firebase.auth().currentUser.displayName}</Text>
                             <Text style={styles.email}>{firebase.auth().currentUser.email}</Text>
@@ -90,14 +169,14 @@ export default class SetupProfileOrganisation extends React.Component {
                             { label: 'Religious Organisation' },
                             { label: 'Other' },
                         ]}
-                        defaultNull = {this.state.category === null}
+                        defaultNull={this.state.category === null}
                         placeholder="Select a category"
-                        containerStyle={ styles.dropdown }
+                        containerStyle={styles.dropdown}
                         style={{ backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, borderBottomLeftRadius: 20, borderBottomRightRadius: 20 }}
                         dropDownStyle={{ backgroundColor: 'white', borderBottomLeftRadius: 20, borderBottomRightRadius: 20 }}
                         placeholderStyle={{ color: "#c9c9c9" }}
                         labelStyle={{ color: "#2C2061" }}
-                        onChangeItem={(item)=> {
+                        onChangeItem={(item) => {
                             this.setState({
                                 category: item.label
                             });

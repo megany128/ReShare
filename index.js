@@ -1,5 +1,6 @@
 import _ from 'lodash';
 
+// Checks if an offer's name or description contains the query
 export const contains = ({name, description}, query) => {
     if (name.toLowerCase().includes(query) || description.toLowerCase().includes(query))
     {
@@ -8,9 +9,8 @@ export const contains = ({name, description}, query) => {
     return false;
 };
 
+// Checks if an offer's category matches the filter
 export const categoryFilter = ({category}, filter) => {
-    console.log('category: ' + category)
-    console.log('filter: ' + filter)
     if (category === filter)
     {
         return true;
@@ -18,9 +18,8 @@ export const categoryFilter = ({category}, filter) => {
     return false;
 };
 
+// Checks if an offer's location matches the filter
 export const locationFilter = ({location}, filter) => {
-    console.log('location: ' + location)
-    console.log('filter: ' + filter)
     if (location === filter)
     {
         return true;
@@ -28,6 +27,7 @@ export const locationFilter = ({location}, filter) => {
     return false;
 };
 
+// Checks if an offer is by a certain author
 export const byAuthor = ({author}, authorID) => {
     if (author === authorID)
     {
@@ -36,6 +36,7 @@ export const byAuthor = ({author}, authorID) => {
     return false;
 };
 
+// Checks if an offer is by anyone in a list of following
 export const byFollowed = ({author}, following) => {
     for (var i = 0; i < following.length; i++) {
         if (author === following[i].uid)
@@ -45,5 +46,3 @@ export const byFollowed = ({author}, following) => {
     }
     return false;
 };
-
-//function to only return chats where the chat ID contains current UID

@@ -8,7 +8,7 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import Icon from "react-native-vector-icons/Ionicons";
 
-const ResourceImagePicker = ({ image, onImagePicked }) => {
+const ProfileImagePicker = ({ image, onImagePicked }) => {
 
   const [selectedImage, setSelectedImage] = useState();
 
@@ -41,8 +41,8 @@ const ResourceImagePicker = ({ image, onImagePicked }) => {
       <Icon
         name="ios-add"
         color='white'
-        size={100}
-        style={{ position: 'absolute', left: 300 / 2, top: 300 / 2, zIndex: 999 }}
+        size={40}
+        style={{ position: 'absolute', left: 55, top: 60, zIndex: 999 }}
         onPress={_pickImageHandler}
       />
       <View style={styles.imageContainer}>
@@ -62,17 +62,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     backgroundColor: '#ECECEC',
     borderWidth: 0,
-    borderRadius: 20,
-    width: 350,
-    height: 350,
+    borderRadius: 200,
+    width: 125,
+    height: 125,
     marginVertical: 20
   },
   previewImage: {
     width: '100%',
     height: '100%',
     borderWidth: 0,
-    borderRadius: 20,
+    borderRadius: 200,
   }
 })
 
-export default ResourceImagePicker;
+export default ProfileImagePicker;

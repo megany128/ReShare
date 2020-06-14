@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { Component } from 'react';
 import {
     View,
     Text,
@@ -7,29 +7,25 @@ import {
     StyleSheet,
     TextInput,
     Alert,
-    Button
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { db } from '../config';
 import firebase from 'firebase'
 import 'firebase/storage';
 import uuid from 'react-native-uuid';
-import { AsyncStorage } from "react-native"
 import ResourceImagePicker from "../components/ResourceImagePicker"
 import * as Permissions from 'expo-permissions';
 import Constants from 'expo-constants';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from 'moment'
-import { useFonts } from '@use-expo/font';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-
-let offersRef = db.ref('/offers');
 
 class Edit extends Component {
     constructor() {
         super()
         this.state = {
+            // Sets the visibility of the date picker
             isVisible: false
         }
     }
@@ -44,10 +40,13 @@ class Edit extends Component {
         tags: '',
         imageUri: '',
     };
+
+    // Shows the date picker
     showPicker = () => {
         this.setState({ isVisible: true })
     };
 
+    // Hides the date picker and resets expiry (users have to press confirm to save their changes)
     hidePicker = () => {
         this.setState({
             isVisible: false,
@@ -55,6 +54,7 @@ class Edit extends Component {
         })
     }
 
+    // Hides the date picker and sets the state of expiry to the date the user has picked
     handlePicker = (date) => {
         this.setState({
             isVisible: false,
@@ -62,6 +62,7 @@ class Edit extends Component {
         })
     }
 
+    // Sets all the inputs to the correct values from the offer itself
     componentDidMount = async () => {
         this.getPermissionAsync();
         const { navigation } = this.props;
@@ -71,7 +72,7 @@ class Edit extends Component {
 
         const key = navigation.getParam('key', 'no key')
         this.setState({ key })
-        console.log(JSON.stringify(key))
+        console.log('key: ' + JSON.stringify(key))
 
         const description = navigation.getParam('description', 'no description');
         this.setState({ description })
@@ -94,6 +95,7 @@ class Edit extends Component {
         this.setState({ image: url, imageUri: url })
     }
 
+    // Gets permission to access the camera roll
     getPermissionAsync = async () => {
         if (Constants.platform.ios) {
             console.log('getting permission');
@@ -104,6 +106,7 @@ class Edit extends Component {
         }
     }
 
+    // Updates the offer in Firebase with the new values
     editOffer(name, category, description, location, expiry, id) {
         db.ref('offers/' + this.state.key).update({
             name: name,
@@ -115,24 +118,22 @@ class Edit extends Component {
         });
     };
 
-    handleChange = e => {
-        this.setState({
-            e: e.nativeEvent.text
-        });
-    };
-
-
+    // Sets this.state.imageUri to the uri that is passed
     setOfferImage = (uri) => {
         this.setState({ imageUri: uri.uri })
     }
 
+    // Alerts the user if they have not filled out one of the fields
+    // If all fields are filled, uploads the offer to Firebase along with the blob of the image
     handleSubmit = () => {
+        // Checks if an image has been selected
         if (!(/\S/.test(this.state.imageUri))) {
             Alert.alert(
                 "Please add an image for your offer"
             );
         }
 
+        // Checks if the other inputs have been filled
         else if (!(/\S/.test(this.state.name)) || !(/\S/.test(this.state.category)) || !(/\S/.test(this.state.description)) || !(/\S/.test(this.state.location))) {
             Alert.alert(
                 "Please fill in all the fields before submitting"
@@ -146,6 +147,7 @@ class Edit extends Component {
         this.props.navigation.goBack()
     };
 
+    // Converts the URI to a blob that can be stored in Firebase Storage
     uriToBlob = (uri) => {
         console.log('uri: ' + uri)
         return new Promise(function (resolve, reject) {
@@ -164,14 +166,21 @@ class Edit extends Component {
         })
     }
 
+    // Uploads the offer to Firebase along with the blob
     uploadToFirebase = (blob) => {
         console.log('uploading to firebase')
         return new Promise((resolve, reject) => {
             var storageRef = firebase.storage().ref();
+
+            // Generates a random and unique ID for the image
             const imageUuid = uuid.v1();
             console.log('uuid: ' + imageUuid)
+
+            // Edits the offer and updates the relevant values
             this.editOffer(this.state.name, this.state.category, this.state.description, this.state.location, this.state.expiry, imageUuid);
             Alert.alert('Offer saved successfully');
+
+            // Stores the blob as an image in Firebase Storage under the previously generated UUID
             storageRef.child('offers/' + imageUuid + '.jpg').put(blob, {
                 contentType: 'image/jpeg'
             }).then((snapshot) => {
@@ -197,7 +206,7 @@ class Edit extends Component {
                         color='grey'
                         size={30}
                         onPress={() => this.props.navigation.goBack()}
-                        style={{marginTop: 30}}
+                        style={{ marginTop: 30 }}
                     />
                     <Text style={styles.title}>Edit Offer</Text>
                 </View>

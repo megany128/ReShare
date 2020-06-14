@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, TextInput, SafeAreaView, Platform, Image, FlatList, TouchableHighlight, TouchableOpacity } from "react-native";
-import { List, ListItem, Divider } from 'react-native-elements';
+import { View, Text, StyleSheet, TextInput, SafeAreaView, FlatList, TouchableHighlight, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import _ from 'lodash';
 import { contains, categoryFilter, locationFilter } from "/Users/meganyap/Desktop/ReShare/ReShare/index.js"
 import { Dimensions } from 'react-native';
 import { AsyncStorage } from "react-native"
-import moment from "moment";
 import OfferComponent from "../components/OfferComponent"
 import { NavigationEvents } from 'react-navigation';
 
@@ -15,7 +13,6 @@ import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 let offersRef = db.ref('/offers');
 
 class SearchResults extends Component {
-
   state = {
     offers: [],
     fullData: [],
@@ -31,6 +28,7 @@ class SearchResults extends Component {
     let mounted = true;
     if (mounted) {
       offersRef.on('value', snapshot => {
+        // Gets all the offers in Firebase
         let data = snapshot.val();
         if (data) {
           let offers = Object.values(data);
@@ -40,6 +38,7 @@ class SearchResults extends Component {
           this.setState({ isFetching: false })
         }
 
+        // Gets the category filter
         try {
           AsyncStorage.getItem('categoryFilterState').then(data => {
             if (data) {
@@ -53,6 +52,7 @@ class SearchResults extends Component {
           console.log('Failed to load category filter')
         }
 
+        // Gets the location filter
         try {
           AsyncStorage.getItem('locationFilterState').then(data => {
             if (data) {
@@ -65,6 +65,7 @@ class SearchResults extends Component {
           console.log('Failed to load location filter')
         }
 
+        // Gets the search query
         try {
           AsyncStorage.getItem('searchQuery').then(data => {
             if (data) {
@@ -78,6 +79,8 @@ class SearchResults extends Component {
           console.log('Failed to load search query')
         }
 
+        // Gets the type of sort
+        // TO DO: Implement expiry sort
         try {
           AsyncStorage.getItem('sortState').then(data => {
             if (data) {
@@ -120,6 +123,7 @@ class SearchResults extends Component {
     );
   };
 
+  // Gets the key of the offer and passes it to the screen Offer along with the other characteristics of the offer
   pressRow(item) {
     console.log(item)
     this.props.navigation.navigate('Offer', {
@@ -136,112 +140,112 @@ class SearchResults extends Component {
 
   FlatListItemSeparator = () => <View style={styles.line} />;
 
+  // Sorts a list of offers by date/expiry date
+  sortOffers = (searchedOffers) => {
+    // If the current sort is recent, sort the offers by which one is posted most recently
+    if (this.state.currentSort === "Recent") {
+      console.log('sorting by date')
+      const offers = searchedOffers.sort(function (a, b) { return b.time - a.time });
+      console.log(offers)
+      this.setState({ offers })
+    }
+    // Else if the current sort is expiry, sort the offers by which one expires first
+    else if (this.state.currentSort === "Expiry") {
+      console.log('sorting by expiry date')
+      const offers = searchedOffers.sort(function (a, b) { return b.time - a.time });
+      this.setState({ offers })
+    }
+  }
+
+  // Searches for the current search query
   handleSearch = text => {
-    console.log(text)
+    // Sets searchQuery to the user input in the search bar
     AsyncStorage.setItem('searchQuery', JSON.stringify(text))
 
+    // Resets the offers that wilsl be searched
     const offers = this.state.fullData
     console.log('refreshed offers')
 
     this.setState({ offers })
+
+    // Formats the query
     const formattedQuery = text.toLowerCase();
+    console.log('Formatted query: ' + formattedQuery)
+
+    // If both filters are activated, searches for the query and filters the offers accordingly
     if (this.state.category != "" && this.state.location != "") {
+      console.log('Searching for the query...')
       const searchedOffers = _.filter(this.state.fullData, offer => {
         return contains(offer, formattedQuery) && categoryFilter(offer, this.state.category) && locationFilter(offer, this.state.location)
       });
       this.setState({ offers: searchedOffers })
+      console.log('\nRESULT')
+      console.log('======')
       console.log(this.state.offers)
-      if (this.state.currentSort === "Recent") {
-        console.log('sorting by date')
-        const offers = searchedOffers.sort(function (a, b) { return b.time - a.time });
-        console.log(offers)
-        this.setState({ offers })
-      }
-      else if (this.state.currentSort === "Expiry") {
-        console.log('sorting by expiry date')
-        const offers = searchedOffers.sort(function (a, b) { return b.time - a.time });
-        this.setState({ offers })
-      }
+      this.sortOffers(searchedOffers)
     }
+    // If only the location filter is activated, searches for the query and filters the offers accordingly
     else if (this.state.category != "") {
+      console.log('Searching for the query...')
       const searchedOffers = _.filter(this.state.fullData, offer => {
         return contains(offer, formattedQuery) && categoryFilter(offer, this.state.category)
       });
       this.setState({ offers: searchedOffers })
+      console.log('\nRESULT')
+      console.log('======')
       console.log(this.state.offers)
 
-      if (this.state.currentSort === "Recent") {
-        console.log('sorting by date')
-        const offers = searchedOffers.sort(function (a, b) { return b.time - a.time });
-        console.log(offers)
-        this.setState({ offers })
-      }
-      else if (this.state.currentSort === "Expiry") {
-        console.log('sorting by expiry date')
-        const offers = searchedOffers.sort(function (a, b) { return b.time - a.time });
-        this.setState({ offers })
-      }
+      this.sortOffers(searchedOffers)
     }
+    // If only the category filter is activated, searches for the query and filters the offers accordingly
     else if (this.state.location != "") {
+      console.log('Searching for the query...')
       const searchedOffers = _.filter(this.state.fullData, offer => {
         return contains(offer, formattedQuery) && locationFilter(offer, this.state.location)
       });
       this.setState({ offers: searchedOffers })
+      console.log('\nRESULT')
+      console.log('======')
       console.log(this.state.offers)
 
-      if (this.state.currentSort === "Recent") {
-        console.log('sorting by date')
-        const offers = searchedOffers.sort(function (a, b) { return b.time - a.time });
-        console.log(offers)
-        this.setState({ offers })
-      }
-      else if (this.state.currentSort === "Expiry") {
-        console.log('sorting by expiry date')
-        const offers = searchedOffers.sort(function (a, b) { return b.time - a.time });
-        this.setState({ offers })
-      }
+      this.sortOffers(searchedOffers)
     }
+    // If neither filter is activated, just searches for the query
     else {
+      console.log('Searching for the query...')
       const searchedOffers = _.filter(this.state.fullData, offer => {
         return contains(offer, formattedQuery)
       });
       this.setState({ offers: searchedOffers })
+      console.log('\nRESULT')
+      console.log('======')
       console.log(this.state.offers)
 
-      if (this.state.currentSort === "Recent") {
-        console.log('sorting by date')
-        const offers = searchedOffers.sort(function (a, b) { return b.time - a.time });
-        console.log(offers)
-        this.setState({ offers })
-      }
-      else if (this.state.currentSort === "Expiry") {
-        console.log('sorting by expiry date')
-        const offers = searchedOffers.sort(function (a, b) { return b.time - a.time });
-        this.setState({ offers })
-      }
+      this.sortOffers(searchedOffers)
     }
   }
 
+  // Navigates to CategorySelector to select a category filter
   selectCategory() {
     this.props.navigation.navigate('CategorySelector')
   }
 
+  // Navigates to LocationSelector to select a location filter
   selectLocation() {
     this.props.navigation.navigate('LocationSelector')
   }
 
+  // Navigates to SortSelctor to select a sort
   selectSort() {
     this.props.navigation.navigate('SortSelector')
   }
 
+  // Refreshes the data
   onRefresh() {
     this.setState({ isFetching: true, }, () => { this.getData(); });
   }
 
   render() {
-    const { navigation } = this.props;
-    const query = navigation.getParam('query', 'no query');
-    const { currentUser } = this.state
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
         <NavigationEvents onDidFocus={() => this.getData()} />

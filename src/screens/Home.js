@@ -1,19 +1,15 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, TextInput, SafeAreaView, Platform, Image, FlatList, TouchableHighlight, ScrollView, Dimensions } from "react-native";
-import { List, ListItem, Divider } from 'react-native-elements';
+import { View, Text, StyleSheet, TextInput, SafeAreaView, Image, FlatList, TouchableHighlight, ScrollView } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import _ from 'lodash';
-import { contains } from "/Users/meganyap/Desktop/ReShare/ReShare/index.js"
 import { AsyncStorage } from "react-native"
 import OfferComponent from "../components/OfferComponent"
-const { height, width } = Dimensions.get("window");
 import { NavigationEvents } from 'react-navigation';
 
 import { db } from '../config';
 let offersRef = db.ref('/offers');
 
 class Home extends Component {
-
   state = {
     offers: [],
     key: '',
@@ -37,10 +33,17 @@ class Home extends Component {
     isFetching: false
   };
 
+  // Gets the data again
   onRefresh() {
-    this.setState({ isFetching: true, }, () => { this.getData(); });
+    let mounted = true;
+    if (mounted) {
+      console.log('refreshing')
+      this.setState({ isFetching: true, }, () => { this.getData(); });
+    }
+    return () => mounted = false;
   }
 
+  // Renders the search bar and categories as a header
   renderHeader = () => {
     return (
       <SafeAreaView style={{ flex: 1 }}>
@@ -125,12 +128,19 @@ class Home extends Component {
   };
 
   componentDidMount() {
-    this.getData()
+    let mounted = true;
+    if (mounted) {
+      this.forceUpdate()
+      this.getData()
+    }
+    return () => mounted = false;
   }
 
   getData = () => {
     let mounted = true;
     if (mounted) {
+      AsyncStorage.setItem('imageLoaded', 'loaded')
+      // Gets all the offers in Firebase
       offersRef.on('value', snapshot => {
         let data = snapshot.val();
         if (data) {
@@ -139,15 +149,19 @@ class Home extends Component {
           this.setState({ offers });
           this.setState({ fullData })
 
+          // Sorts the offers based on how recently they were published
           const sortedOffers = offers.sort(function (a, b) { return b.time - a.time });
           this.setState({ offers: sortedOffers })
           this.setState({ isFetching: false })
+
+          this.forceUpdate()
         }
       });
     }
     return () => mounted = false;
   }
 
+  // Gets the key of the offer and passes it to the screen Offer along with the other characteristics of the offer
   pressRow(item, index) {
     console.log('key:' + this.getKey(index))
     console.log('index: ' + index)
@@ -165,42 +179,30 @@ class Home extends Component {
     })
   }
 
+  // Clears the search query and location filter and sets the category filter to the one selected
+  // Sets the sort to the default (recent) and navigates to SearchResults to show the results of that category filter
   selectCategory(item) {
     AsyncStorage.setItem('searchQuery', '')
-    AsyncStorage.setItem('categoryFilterState',
-      JSON.stringify(item.key));
-    AsyncStorage.setItem('locationFilterState',
-      JSON.stringify(""));
-    AsyncStorage.setItem('sortState',
-      JSON.stringify("Recent"));
+    AsyncStorage.setItem('categoryFilterState', JSON.stringify(item.key));
+    AsyncStorage.setItem('locationFilterState', JSON.stringify(""));
+    AsyncStorage.setItem('sortState', JSON.stringify("Recent"));
+
     this.props.navigation.navigate('SearchResults')
   }
 
-  renderItem(item) {
-    return (
-      <TouchableHighlight onPress={() => { this.pressRow(item) }}>
-        <Text>
-          {item.name}
-        </Text>
-      </TouchableHighlight>
-    )
-  }
-
-  FlatListItemSeparator = () => <View style={styles.line} />;
-
+  // Sets the search query to the text in the search bar and navigates to SearchResults
+  // Clears the filters and automatically sets the sort to Recent
   handleSearch = text => {
     console.log('Search query: ' + text)
     AsyncStorage.setItem('searchQuery', JSON.stringify(text))
-    this.props.navigation.navigate('SearchResults')
+    AsyncStorage.setItem('categoryFilterState', JSON.stringify(""));
+    AsyncStorage.setItem('locationFilterState', JSON.stringify(""));
+    AsyncStorage.setItem('sortState', JSON.stringify("Recent"));
 
-    AsyncStorage.setItem('categoryFilterState',
-      JSON.stringify(""));
-    AsyncStorage.setItem('locationFilterState',
-      JSON.stringify(""));
-    AsyncStorage.setItem('sortState',
-      JSON.stringify("Recent"));
+    this.props.navigation.navigate('SearchResults')
   }
 
+  // Renders the correct icon based on the category
   renderImage(img) {
     switch (img) {
       case 'Appliances':
@@ -234,19 +236,22 @@ class Home extends Component {
     }
   }
 
+  // Gets the key of an offer at a certain index in the list of offers
   getKey = (index) => {
     let key = 0;
     offersRef.on('value', snapshot => {
       let data = snapshot.val();
-      if (data)
-        key = Object.keys(data)[index]
+      if (data) {
+        const sortedOffers = Object.keys(data).reverse()
+        key = sortedOffers[index]
+      }
     })
+    console.log('key:' + key)
     return key
   }
 
+  // Renders the list of offers
   render() {
-    const { navigation } = this.props;
-    const { currentUser } = this.state
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
         <NavigationEvents onDidFocus={() => this.getData()} />
