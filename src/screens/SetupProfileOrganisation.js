@@ -160,6 +160,7 @@ export default class SetupProfileOrganisation extends React.Component {
                     <Text style={{ fontWeight: 'bold', marginLeft: 40, fontSize: 20, color: '#4b4c4c' }}>Category</Text>
 
                     <DropDownPicker
+                    zIndex={5000}
                         items={[
                             { label: 'Care Home' },
                             { label: 'Disaster Relief' },

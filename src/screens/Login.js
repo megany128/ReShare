@@ -11,12 +11,13 @@ export default class Login extends React.Component {
     const { email, password } = this.state
     firebase
       .auth().signInWithEmailAndPassword(email, password)
-      .then(() => 
-      console.log('logging in'),
-      console.log(firebase.auth().currentUser.uid),
-      AsyncStorage.setItem('userStatus', 'logged in'),
-      AsyncStorage.setItem('profileSetUp', 'set up'),
-      this.props.navigation.navigate('Home'))
+      .then(() => {
+        console.log('logging in'),
+          console.log(firebase.auth().currentUser.uid),
+          AsyncStorage.setItem('userStatus', 'logged in'),
+          AsyncStorage.setItem('profileSetUp', 'set up'),
+          this.props.navigation.navigate('Home')
+      })
       .catch(error => this.setState({ errorMessage: error.message }))
     console.log('handleLogin')
   }
@@ -66,7 +67,6 @@ export default class Login extends React.Component {
             placeholder="Password"
             onChangeText={password => this.setState({ password })}
             value={this.state.password}
-            autoCompleteType='password'
           />
         </View>
 

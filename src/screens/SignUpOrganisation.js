@@ -78,7 +78,7 @@ export default class SignUpOrganisation extends React.Component {
           </TouchableOpacity>
         </View>
 
-        <Text style={{ marginBottom: 15, alignSelf: 'center', color: 'grey' }}>Organisations can donate and accept resources</Text>
+        <Text style={{ marginBottom: 15, alignSelf: 'center', color: '#6C63FF', fontWeight: 'bold' }}>Organisations can donate and receive resources</Text>
 
         <View style={styles.inputView}>
           <TextInput

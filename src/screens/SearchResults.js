@@ -102,6 +102,7 @@ class SearchResults extends Component {
           console.log('Failed to load search query')
         }
       });
+      this.handleSearch(this.state.query)
     }
     return () => mounted = false;
   }

@@ -22,8 +22,8 @@ class MessageScreen extends Component {
             // Gets the parameters passed on from Messages
             const { navigation } = this.props;
             const id = navigation.getParam('id', 'no id')
-            console.log('id: ' + this.state.id)
             const name = navigation.getParam('name', 'no name')
+            console.log(name)
             this.setState({ name })
 
             // When a new message is sent, append it to GiftedChat and sort the messages by when they were sent

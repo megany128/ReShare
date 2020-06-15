@@ -42,7 +42,6 @@ class Add extends Component {
     description: '',
     location: '',
     expiry: '',
-    tags: '',
     imageUri: ''
   };
 
@@ -80,7 +79,6 @@ class Add extends Component {
       description: '',
       location: '',
       expiry: '',
-      tags: '',
       imageUri: '',
       image: ''
     })

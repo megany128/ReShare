@@ -236,7 +236,6 @@ export default class UserProfile extends React.Component {
         return () => mounted = false;
     }
 
-    // TO DO: Change to sort + binary search
     // Standard linear search algorithm
     // Checks every UID in the current user's following list to compare it with the specified user's UID
     checkIfFollowing = (arr, uid) => {
@@ -248,6 +247,7 @@ export default class UserProfile extends React.Component {
         return () => mounted = false;
     }
 
+    // Binary search
     binarySearch = (array, uid) => {
         let startIndex = 0;
         let endIndex = array.length - 1;
@@ -257,7 +257,7 @@ export default class UserProfile extends React.Component {
                 return true
             }
             if (uid > array[middleIndex]) {
-                console.log("Searching the right side of Array")
+                console.log("Searching the right side of array")
                 startIndex = middleIndex + 1;
             }
             if (uid < array[middleIndex]) {
@@ -271,6 +271,7 @@ export default class UserProfile extends React.Component {
         return false
     }
 
+    // Selection sort
     selectionSort = (arr) => {
         let len = arr.length;
         for (let i = 0; i < len; i++) {
@@ -341,7 +342,8 @@ const styles = StyleSheet.create({
         marginTop: 10,
         fontWeight: 'bold',
         fontSize: 20,
-        color: 'white'
+        color: 'white',
+        width: 240
     },
     biography: {
         marginTop: 5,

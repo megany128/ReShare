@@ -78,7 +78,7 @@ export default class SignUpIndividual extends React.Component {
           </TouchableOpacity>
         </View>
 
-        <Text style={{ marginBottom: 15, alignSelf: 'center', color: 'grey' }}>Individuals can only donate resources</Text>
+        <Text style={{ marginBottom: 15, alignSelf: 'center', color: '#6C63FF', fontWeight: 'bold' }}>Individuals can donate but not receive resources</Text>
 
         <View style={styles.inputView}>
           <TextInput

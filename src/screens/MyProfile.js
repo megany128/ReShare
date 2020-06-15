@@ -28,13 +28,14 @@ export default class Profile extends React.Component {
       .then((snapshot) => {
         console.log(snapshot)
         const imageID = snapshot.child('pfp').val();
-
-        AsyncStorage.getItem('profileLoaded').then(data => {
-          if (data === 'loaded') {
-            const ref = firebase.storage().ref('profile/' + { imageID }.imageID + '.jpg');
-            this.getURL(ref)
-          }
-        })
+        if (imageID) {
+          AsyncStorage.getItem('profileLoaded').then(data => {
+            if (data === 'loaded') {
+              const ref = firebase.storage().ref('profile/' + { imageID }.imageID + '.jpg');
+              this.getURL(ref)
+            }
+          })
+        }
       });
   }
 
@@ -241,7 +242,8 @@ const styles = StyleSheet.create({
     marginTop: 30,
     fontWeight: 'bold',
     fontSize: 20,
-    color: 'white'
+    color: 'white',
+    width: 240
   },
   biography: {
     marginTop: 5,

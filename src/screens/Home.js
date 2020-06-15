@@ -9,12 +9,11 @@ import { NavigationEvents } from 'react-navigation';
 import { db } from '../config';
 let offersRef = db.ref('/offers');
 
-class Home extends Component {
+class Home extends React.Component {
   state = {
     offers: [],
     key: '',
     fullData: [],
-    currentUser: null,
     query: "",
     categories: [
       { key: 'Appliances' },
@@ -132,8 +131,18 @@ class Home extends Component {
     if (mounted) {
       this.forceUpdate()
       this.getData()
+      this.willFocusSubscription = this.props.navigation.addListener(
+        'willFocus',
+        () => {
+          this.getData();
+        }
+      );
     }
     return () => mounted = false;
+  }
+
+  componentWillUnmount() {
+    this.willFocusSubscription.remove();
   }
 
   getData = () => {
@@ -267,11 +276,12 @@ class Home extends Component {
                 snapToAlignment="center"
                 style={styles.listStyle}
                 data={this.state.offers}
+                extraData={this.state}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item, index }) => (
                   <TouchableHighlight style={styles.listItemStyle} onPress={() => { this.pressRow(item, index) }}>
                     <OfferComponent
-                      item={item}
+                      item={this.state.offers[index]}
                     />
                   </TouchableHighlight>
                 )}

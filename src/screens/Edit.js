@@ -38,7 +38,6 @@ class Edit extends Component {
         description: '',
         location: '',
         expiry: '',
-        tags: '',
         imageUri: '',
     };
 
@@ -73,7 +72,6 @@ class Edit extends Component {
 
         const uid = navigation.getParam('uid', 'no uid')
         this.setState({ uid })
-        console.log('uid:'+uid)
 
         const key = navigation.getParam('key', 'no key')
         this.setState({ key })

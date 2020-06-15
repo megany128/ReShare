@@ -13,6 +13,7 @@ class OfferComponent extends Component {
   async componentDidMount() {
     let mounted = true;
     if (mounted) {
+      console.log(this.props.item.name + ': ' + this.props.item.id)
       AsyncStorage.getItem('imageLoaded').then(data => {
         if (data === 'loaded') {
           // Gets the url of the image stored under the corresponding offer in Firebase

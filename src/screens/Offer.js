@@ -18,7 +18,7 @@ const styles = StyleSheet.create({ ...OfferStyle })
 
 // Renders a button or a comment or nothing based on who the current user is
 const RenderButton = (props) => {
-  const { uid, author, keyItem, name, organisation, currentUid } = props;
+  const { uid, author, keyItem, name, organisation, currentUid, contactDonor } = props;
 
   // If the current user is the one who posted the offer, don't render anything
   if (uid === currentUid) {
@@ -31,7 +31,7 @@ const RenderButton = (props) => {
   else if (organisation) {
     return (
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.buttonFooter} onPress={() => this.contactDonor(uid, author, keyItem, name)}>
+        <TouchableOpacity style={styles.buttonFooter} onPress={() => contactDonor(uid, author, keyItem, name)}>
           <Text style={styles.textFooter}>CONTACT DONOR</Text>
         </TouchableOpacity>
       </View>
@@ -362,6 +362,8 @@ export default class Offer extends React.PureComponent {
 
   // Contacts the donor of the offer
   contactDonor = (uid, author, key, name) => {
+    key = key.replace('\"','');
+    key = key.replace('\"','');
     const chatID = this.chatID(uid)
 
     // Sets the latest message of the chat to the user requesting the offer
@@ -377,6 +379,7 @@ export default class Offer extends React.PureComponent {
     // Adds a message to the chat that the user is requesting the offer
     firebase.database().ref('messages/' + chatID).once('value', function (snapshot) {
       if (!snapshot.hasChild(key)) {
+        console.log('key:'+key)
         firebase.database().ref('messages').child(chatID + '/' + key).set({
           _id: key,
           createdAt: new Date().getTime(),
@@ -389,7 +392,7 @@ export default class Offer extends React.PureComponent {
     // Navigates to MessageScreen, passing the uid and name of the author as props
     this.props.navigation.navigate('MessageScreen', {
       id: uid,
-      author: author
+      name: author
     })
   }
 
@@ -408,8 +411,6 @@ export default class Offer extends React.PureComponent {
 
   // Renders the offer
   render() {
-    console.log(this.state.author)
-    console.log(firebase.auth().currentUser.uid)
     const key = this.props.navigation.getParam('key', 'no key')
     return (
       <View style={styles.mainviewStyle}>
@@ -431,6 +432,7 @@ export default class Offer extends React.PureComponent {
           name={this.state.name}
           organisation={this.state.organisation}
           currentUid={firebase.auth().currentUser.uid}
+          contactDonor={this.contactDonor}
         />
       </View>
     )
