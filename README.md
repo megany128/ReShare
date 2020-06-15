@@ -26,14 +26,10 @@ please quit the app and try logging in again. If this still does not work, pleas
 Due to storage and rendering restrictions, updates may not be able to appear immediately. Please be patient and refresh the screen
 or quit and reopen the app if necessary.
 
-- Why does the user interface look funny?
+- Why does the user interface look weird?
 
 As I am using one language to program for both iOS and Android, some features don't translate well across the platforms.
 One of these is user interface, so please bear with it. The app may not look as nice on different-sized devices.
-
-- Is ReShare available for iOS?
-
-Right now, ReShare is only available for Android. This is due to financial constraints, so we will hopefully be able to expand to iOS in the future.
 
 - I have a Firebase Storage error. What do I do?
 
