@@ -34,3 +34,7 @@ One of these is user interface, so please bear with it. The app may not look as 
 - Is ReShare available for iOS?
 
 Right now, ReShare is only available for Android. This is due to financial constraints, so we will hopefully be able to expand to iOS in the future.
+
+- I have a Firebase Storage error. What do I do?
+
+Due to financial constraints, users can only store a certain number of images per day. Unfortunately, you will have to wait till tomorrow for the app to regain functionality.
