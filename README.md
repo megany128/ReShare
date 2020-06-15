@@ -38,3 +38,11 @@ Right now, ReShare is only available for Android. This is due to financial const
 - I have a Firebase Storage error. What do I do?
 
 Due to financial constraints, users can only store a certain number of images per day. Unfortunately, you will have to wait till tomorrow for the app to regain functionality.
+
+- Why does it say 'network error'?
+
+This is an API issue. Please dismiss the error and try again.
+
+- Why do category and location reset when I edit my offer?
+
+This is a constraint with the package used and unfortunately, it is not possible to fix this. Please just set the category and location again.
