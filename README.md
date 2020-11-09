@@ -12,7 +12,7 @@ There are also a range of safety features available - to prevent users from taki
 Don't let your additional resources go to waste - care to share with ReShare.
 
 # Installation Guide
-To install, please visit to https://appdistribution.firebase.dev/i/c511fe95799c8ab4. Enter your email address to gain access and check your email address
+To install, please visit https://appdistribution.firebase.dev/i/c511fe95799c8ab4. Enter your email address to gain access and check your email address
 to view the app. Follow the instructions to set up your device. Please email megany128@gmail.com if you have any questions or feedback.
 
 # FAQs
